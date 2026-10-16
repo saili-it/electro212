@@ -4,10 +4,12 @@
 FROM node:22-bookworm-slim AS builder
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
-# DATABASE_URL is normally NOT needed at build time (the sitemap falls back
-# gracefully and all page data is fetched at runtime). Kept as an optional ARG
-# in case a future build step needs it.
-ARG DATABASE_URL=""
+# prisma.config.ts resolves env("DATABASE_URL") when the Prisma CLI loads it, so
+# a syntactically-valid value must exist at build time. This placeholder is
+# never used to connect: `prisma generate` only reads the schema, and
+# `next build` never queries the DB (the sitemap falls back gracefully). The
+# real DATABASE_URL is injected at runtime by docker compose.
+ARG DATABASE_URL="postgresql://postgres:postgres@localhost:5432/placeholder?schema=public"
 ENV DATABASE_URL=$DATABASE_URL
 
 # Install dependencies first (layer cached until the lockfile changes).
