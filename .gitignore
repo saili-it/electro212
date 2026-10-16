@@ -45,6 +45,9 @@ next-env.d.ts
 # local uploaded files (dev storage adapter)
 /.data
 
+# server-specific compose override (reverse-proxy network, etc.)
+/docker-compose.override.yml
+
 # large / scratch source assets (not needed to run or deploy the app)
 /product-images/
 /cat images/

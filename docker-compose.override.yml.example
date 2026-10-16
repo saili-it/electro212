@@ -1,0 +1,13 @@
+# Put the app behind a shared reverse-proxy network (e.g. a Caddy/Traefik proxy
+# that owns :80/:443). Copy this to `docker-compose.override.yml` (auto-loaded by
+# `docker compose`) and set the external network name to your proxy's network.
+# The proxy then routes to the app by container name: electro212-app-1:3000.
+services:
+  app:
+    networks:
+      - default # keeps the app able to reach the `db` service
+      - web # shared proxy network
+networks:
+  web:
+    external: true
+    name: web # <-- the proxy's shared network (e.g. `web`); `docker network ls`

@@ -40,8 +40,10 @@ services:
       STORAGE_ACCESS_KEY_ID: ${STORAGE_ACCESS_KEY_ID:-}
       STORAGE_SECRET_ACCESS_KEY: ${STORAGE_SECRET_ACCESS_KEY:-}
       STORAGE_PUBLIC_CDN_URL: ${STORAGE_PUBLIC_CDN_URL:-}
+    # Host-local only — public traffic comes through a reverse proxy (see
+    # docker-compose.override.yml to join a shared proxy network).
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     volumes:
       # Keeps uploaded product images across restarts (local storage adapter).
       - electro212_uploads:/app/.data
