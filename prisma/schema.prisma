@@ -1,0 +1,457 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------- Catalog ----------
+
+model Brand {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  slug     String    @unique
+  logoUrl  String?
+  isActive Boolean   @default(true)
+  products Product[]
+}
+
+model Category {
+  id       String  @id @default(cuid())
+  parentId String?
+  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryTree")
+
+  slug       String  @unique
+  position   Int     @default(0)
+  imageUrl   String?
+  isActive   Boolean @default(true)
+
+  translations       CategoryTranslation[]
+  primaryProducts    Product[]           @relation("PrimaryCategory")
+  productCategories  ProductCategory[]
+  categoryAttributes CategoryAttribute[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CategoryTranslation {
+  id             String   @id @default(cuid())
+  categoryId     String
+  category       Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  locale         String // "fr" | "ar"
+  name           String
+  seoTitle       String?
+  seoDescription String?
+
+  @@unique([categoryId, locale])
+}
+
+enum ProductStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model Product {
+  id   String @id @default(cuid())
+  sku  String @unique // staff-assigned, independent of Sage
+  slug String @unique
+
+  brandId String?
+  brand   Brand?  @relation(fields: [brandId], references: [id])
+
+  primaryCategoryId String
+  primaryCategory   Category          @relation("PrimaryCategory", fields: [primaryCategoryId], references: [id])
+  categories        ProductCategory[]
+
+  priceMinorUnits          Int
+  compareAtPriceMinorUnits Int?
+  currency                 String        @default("MAD")
+  status                   ProductStatus @default(DRAFT)
+
+  translations    ProductTranslation[]
+  images          ProductImage[]
+  attributeValues ProductAttributeValue[]
+  inventory       Inventory?
+  orderItems      OrderItem[]
+  stockMovements  StockMovement[]
+  promotions      PromotionProduct[]
+
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([status])
+  @@index([primaryCategoryId])
+  @@index([brandId])
+}
+
+model ProductTranslation {
+  id               String   @id @default(cuid())
+  productId        String
+  product          Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  locale           String // "fr" | "ar"
+  name             String
+  description      String?  @db.Text
+  shortDescription String?
+  seoTitle         String?
+  seoDescription   String?
+
+  @@unique([productId, locale])
+}
+
+/// Additional, non-primary category memberships (e.g. a built-in hob also listed under "Encastrable").
+model ProductCategory {
+  productId  String
+  categoryId String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([productId, categoryId])
+}
+
+enum AttributeDataType {
+  TEXT
+  NUMBER
+  BOOLEAN
+  ENUM
+}
+
+model Attribute {
+  id           String            @id @default(cuid())
+  code         String            @unique // capacite_kg, btu, couverts
+  label        String
+  dataType     AttributeDataType
+  unit         String?
+  enumOptions  Json?
+  isFilterable Boolean           @default(true)
+  isActive     Boolean           @default(true)
+
+  categoryAttributes CategoryAttribute[]
+  values             ProductAttributeValue[]
+}
+
+/// Which filters each category exposes.
+model CategoryAttribute {
+  categoryId  String
+  attributeId String
+  position    Int     @default(0)
+  isRequired  Boolean @default(false)
+
+  category  Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  attribute Attribute @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+
+  @@id([categoryId, attributeId])
+}
+
+model ProductAttributeValue {
+  productId    String
+  attributeId  String
+  valueText    String?
+  valueNumber  Decimal? @db.Decimal(12, 3)
+  valueBoolean Boolean?
+
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  attribute Attribute @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+
+  @@id([productId, attributeId])
+  @@index([attributeId, valueNumber])
+  @@index([attributeId, valueText])
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  alt       String?
+  position  Int     @default(0)
+}
+
+// ---------- Inventory (single pooled stock per product) ----------
+
+model Inventory {
+  productId         String   @id
+  product           Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  stockQuantity     Int      @default(0)
+  reservedQuantity  Int      @default(0)
+  lowStockThreshold Int      @default(3)
+  updatedAt         DateTime @updatedAt
+  // availableStock = stockQuantity - reservedQuantity, computed in queries, never stored
+}
+
+enum StockMovementType {
+  MANUAL_ADJUSTMENT
+  RESERVATION
+  RESERVATION_RELEASE
+  SALE_DEDUCTION
+  RETURN_RESTOCK
+}
+
+model StockMovement {
+  id            String            @id @default(cuid())
+  productId     String
+  product       Product           @relation(fields: [productId], references: [id])
+  type          StockMovementType
+  quantityDelta Int
+  reason        String?
+  orderId       String?
+  order         Order?            @relation(fields: [orderId], references: [id])
+  adminUserId   String?
+  adminUser     AdminUser?        @relation(fields: [adminUserId], references: [id])
+  createdAt     DateTime          @default(now())
+
+  @@index([productId])
+  @@index([orderId])
+}
+
+// ---------- Customers & orders ----------
+
+/// Opportunistic, keyed by phone; no login in MVP (guest checkout only).
+model Customer {
+  id        String   @id @default(cuid())
+  email     String?  @unique
+  phone     String?  @unique
+  name      String?
+  orders    Order[]
+  createdAt DateTime @default(now())
+}
+
+enum OrderStatus {
+  PENDING_CONFIRMATION
+  CONFIRMED
+  PREPARING
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+  FAILED_DELIVERY
+  RETURNED
+}
+
+enum PaymentMethod {
+  UNDEFINED
+  CASH_ON_DELIVERY
+  BANK_TRANSFER
+  CARD_ONLINE
+}
+
+enum PaymentStatus {
+  NOT_APPLICABLE
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model Order {
+  id         String    @id @default(cuid())
+  reference  String    @unique // e.g. E212-20261009-0007
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+
+  contactName         String
+  contactPhone        String
+  contactEmail        String?
+  deliveryCity        String
+  deliveryAddressLine String
+  deliveryNotes       String?
+
+  status OrderStatus @default(PENDING_CONFIRMATION)
+
+  subtotalMinorUnits    Int
+  deliveryFeeMinorUnits Int    @default(0)
+  totalMinorUnits       Int
+  currency              String @default("MAD")
+
+  paymentMethod PaymentMethod @default(UNDEFINED)
+  paymentStatus PaymentStatus @default(NOT_APPLICABLE)
+
+  idempotencyKey     String? @unique
+  cancellationReason String?
+
+  items          OrderItem[]
+  statusHistory  OrderStatusHistory[]
+  stockMovements StockMovement[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([customerId])
+}
+
+/// Snapshot fields so catalog edits never alter historical orders.
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id])
+
+  skuSnapshot                 String
+  nameSnapshot                String
+  unitPriceMinorUnitsSnapshot Int
+  quantity                    Int
+  lineTotalMinorUnits         Int
+}
+
+model OrderStatusHistory {
+  id          String       @id @default(cuid())
+  orderId     String
+  order       Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  fromStatus  OrderStatus?
+  toStatus    OrderStatus
+  reason      String? // required for CANCELLED / FAILED_DELIVERY
+  adminUserId String?
+  adminUser   AdminUser?   @relation(fields: [adminUserId], references: [id])
+  createdAt   DateTime     @default(now())
+
+  @@index([orderId])
+}
+
+// ---------- Admin ----------
+
+enum AdminRole {
+  SUPER_ADMIN
+  CATALOG_MANAGER
+  ORDER_MANAGER
+  READ_ONLY
+}
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  role         AdminRole @default(ORDER_MANAGER)
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+
+  statusChanges  OrderStatusHistory[]
+  stockMovements StockMovement[]
+  auditLogs      AuditLog[]
+  importJobs     ImportJob[]
+}
+
+model AuditLog {
+  id          String    @id @default(cuid())
+  adminUserId String
+  adminUser   AdminUser @relation(fields: [adminUserId], references: [id])
+  action      String // "product.publish", "order.status_change", "stock.adjust"
+  entityType  String
+  entityId    String
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+
+  @@index([entityType, entityId])
+}
+
+/// SEO-safe slug changes.
+model Redirect {
+  id         String   @id @default(cuid())
+  fromPath   String   @unique
+  toPath     String
+  statusCode Int      @default(301)
+  createdAt  DateTime @default(now())
+}
+
+// ---------- CSV import ----------
+
+model ImportJob {
+  id          String         @id @default(cuid())
+  fileName    String
+  status      String // processing | completed | failed
+  totalRows   Int
+  okRows      Int
+  errorRows   Int
+  createdById String
+  createdBy   AdminUser      @relation(fields: [createdById], references: [id])
+  createdAt   DateTime       @default(now())
+  rows        ImportJobRow[]
+}
+
+model ImportJobRow {
+  id        String    @id @default(cuid())
+  jobId     String
+  job       ImportJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  rowNumber Int
+  sku       String?
+  status    String // ok | error
+  message   String?
+  rawData   Json
+}
+
+// ---------- Marketing ----------
+
+enum BannerPlacement {
+  HERO // full-width slideshow at the top of the home page
+  PROMO // "publicité" cards below the hero (image + timer + CTA)
+  SIDE // (unused) small ad inserts beside the hero
+  MIDDLE // wide advertising banner in the middle of the home page
+}
+
+/// Admin-managed home banner: an uploaded image + link, for the hero slider or a promo card.
+model Banner {
+  id          String          @id @default(cuid())
+  placement   BannerPlacement @default(PROMO)
+  title       String // internal name, also the image alt text
+  imageKey    String // storage key, needed to delete the file
+  imageUrl    String
+  imageWidth  Int
+  imageHeight Int
+  linkUrl     String // internal path ("/categories/...") or https URL
+  ctaLabel    String          @default("J'en profite") // PROMO card button, or HERO overlay button
+  footnote    String? // legal mention under a PROMO card
+  headline    String? // HERO overlay title shown on the image
+  subtitle    String? // HERO overlay subtitle
+  startsAt    DateTime? // hidden before this moment
+  endsAt      DateTime? // PROMO shows "Jusqu'au …"; both placements hide after
+  position    Int             @default(0)
+  isActive    Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([placement, isActive, position])
+}
+
+/// A curated promotional event (e.g. "Black Friday"): a hand-picked set of
+/// products shown together on /promotions/[slug]. Prices are unchanged — any
+/// discount comes from each product's own compareAtPrice.
+model Promotion {
+  id              String  @id @default(cuid())
+  slug            String  @unique
+  title           String // display name, e.g. "Black Friday"
+  subtitle        String? // short tagline under the title
+  description     String? @db.Text
+  heroImageKey    String? // storage key, needed to delete the file
+  heroImageUrl    String?
+  heroImageWidth  Int?
+  heroImageHeight Int?
+  startsAt        DateTime? // hidden before this moment
+  endsAt          DateTime? // hidden after this moment
+  isActive        Boolean   @default(true)
+  position        Int       @default(0)
+
+  products  PromotionProduct[]
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  @@index([isActive, position])
+}
+
+model PromotionProduct {
+  promotionId String
+  productId   String
+  position    Int    @default(0)
+
+  promotion Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@id([promotionId, productId])
+  @@index([productId])
+}
+
+// Phase 5 (deferred, low priority): Coupon, StaticPage models — added when that phase starts.

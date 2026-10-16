@@ -8,8 +8,35 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-jakarta);
   --font-mono: var(--font-geist-mono);
+}
+
+/*
+ * Electro212 charte graphique, sampled from the logo and the reference site.
+ * red: logo/menu bar (#ef3d39). Buttons with white text use red-600, since
+ * white on #ef3d39 is only 3.9:1 contrast (below the 4.5:1 minimum).
+ * green (#1ab25d) is too light for white text (2.8:1): use it for fills and
+ * for tinted badges, with green-700 text.
+ */
+@theme {
+  --color-brand-navy: #0d0625;
+  --color-brand-navy-800: #1a1238;
+  --color-brand-navy-700: #2a2150;
+  --color-brand-red: #ef3d39;
+  --color-brand-red-600: #d42f2b;
+  --color-brand-red-700: #b42521;
+  --color-brand-red-50: #fef1f0;
+  --color-brand-green: #1ab25d;
+  --color-brand-green-700: #12753e;
+  --color-brand-green-50: #e9f8ef;
+  /* Warm, soft surface — friendlier than a cool gray. */
+  --color-surface: #f6f5f8;
+
+  /* Soft, brand-tinted elevation (navy-shadowed) for a modern, airy feel. */
+  --shadow-soft: 0 1px 2px rgb(13 6 37 / 0.04), 0 10px 26px -12px rgb(13 6 37 / 0.14);
+  --shadow-card: 0 1px 3px rgb(13 6 37 / 0.05), 0 16px 40px -16px rgb(13 6 37 / 0.2);
+  --shadow-pop: 0 2px 6px rgb(13 6 37 / 0.06), 0 24px 60px -20px rgb(13 6 37 / 0.28);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -19,8 +46,79 @@
   }
 }
 
+/*
+ * The storefront never scrolls horizontally. Clip any accidental overflow
+ * (e.g. an off-screen hover panel or a flex intrinsic-size quirk) at the root.
+ * `clip` — not `hidden` — so it doesn't become a scroll container and
+ * position: sticky (filter sidebar, cart summary) keeps working.
+ */
+html {
+  overflow-x: clip;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Tighter tracking on large headings reads more polished and modern. */
+h1,
+h2,
+h3 {
+  letter-spacing: -0.01em;
+}
+
+/*
+ * Scroll-reveal (progressive enhancement). Elements marked .reveal fade and
+ * slide in when scrolled into view (a client observer adds .is-visible).
+ * Gated on html[data-anim] — set by a tiny inline script only when JS runs —
+ * so content is fully visible without JS, and the whole effect is disabled for
+ * visitors who prefer reduced motion.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-anim] .reveal {
+    opacity: 0;
+    transform: translateY(1.5rem);
+    transition:
+      opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+    will-change: opacity, transform;
+  }
+  html[data-anim] .reveal.reveal-left {
+    transform: translateX(-1.5rem);
+  }
+  html[data-anim] .reveal.reveal-zoom {
+    transform: scale(0.96);
+  }
+  html[data-anim] .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Once revealed, drop the hint so transforms don't trap child fixed/sticky layers. */
+.reveal.is-visible {
+  will-change: auto;
+}
+
+@keyframes e212-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Lightweight one-shot entrance for small UI (badges, toasts, dropdowns). */
+  .animate-fade-up {
+    animation: e212-fade-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
 }

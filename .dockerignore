@@ -1,0 +1,28 @@
+# Rebuilt / reinstalled inside the image
+node_modules
+.next
+out
+build
+
+# Secrets & local data (provided via compose env / volumes, never baked in)
+.env
+.env.*
+.data
+
+# VCS & tooling
+.git
+.gitignore
+coverage
+*.tsbuildinfo
+
+# Large / scratch source assets (not needed to run the app)
+product-images
+cat images
+product-image-map.json
+example.jpeg
+logo.jpeg
+
+# Docs & tests (not needed at runtime)
+docs
+tests
+*.md

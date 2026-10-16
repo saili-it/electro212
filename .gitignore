@@ -32,6 +32,8 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# ...but keep the template so deployers know which variables to set.
+!.env.example
 
 # vercel
 .vercel
@@ -39,3 +41,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local uploaded files (dev storage adapter)
+/.data
+
+# large / scratch source assets (not needed to run or deploy the app)
+/product-images/
+/cat images/
+/product-image-map.json
+/example.jpeg
+/logo.jpeg
