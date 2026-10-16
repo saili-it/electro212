@@ -39,9 +39,11 @@ docker compose up -d --build
 
 - Construit l'image de l'app, démarre **PostgreSQL** puis **l'app**.
 - Au démarrage, l'app applique automatiquement les migrations (`prisma migrate deploy`) — le schéma est créé.
-- L'app écoute sur le port **3000**.
+- L'app écoute sur le port **3000** ; la base seulement sur `127.0.0.1:5432` (jamais publique).
 
-Vérifier : `docker compose ps` et `docker compose logs -f app`.
+Vérifier : `docker compose ps` et `docker compose logs -f app`. Après le premier
+`db:seed`/import (étape 4), la page d'accueil se rafraîchit sous ~1 min ; les
+pages catégories/produits sont correctes dès la première visite.
 
 ## 4. Données de départ
 

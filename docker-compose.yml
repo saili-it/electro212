@@ -9,6 +9,9 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Définissez POSTGRES_PASSWORD dans .env}
       POSTGRES_DB: ${POSTGRES_DB:-electro212}
+    # Bound to localhost only (handy for psql/backups); never exposed publicly.
+    ports:
+      - "127.0.0.1:5432:5432"
     volumes:
       - electro212_pgdata:/var/lib/postgresql/data
     healthcheck:

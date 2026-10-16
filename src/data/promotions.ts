@@ -280,27 +280,32 @@ export async function getActivePromotions(): Promise<PromotionCard[]> {
   cacheTag(CATALOG_TAG);
   cacheLife("minutes");
 
-  const now = new Date();
-  const rows = await prisma.promotion.findMany({
-    where: {
-      isActive: true,
-      OR: [{ startsAt: null }, { startsAt: { lte: now } }],
-      AND: [{ OR: [{ endsAt: null }, { endsAt: { gt: now } }] }],
-    },
-    orderBy: [{ position: "asc" }, { createdAt: "desc" }],
-    include: { _count: { select: { products: { where: { product: { status: "PUBLISHED" } } } } } },
-  });
+  try {
+    const now = new Date();
+    const rows = await prisma.promotion.findMany({
+      where: {
+        isActive: true,
+        OR: [{ startsAt: null }, { startsAt: { lte: now } }],
+        AND: [{ OR: [{ endsAt: null }, { endsAt: { gt: now } }] }],
+      },
+      orderBy: [{ position: "asc" }, { createdAt: "desc" }],
+      include: { _count: { select: { products: { where: { product: { status: "PUBLISHED" } } } } } },
+    });
 
-  return rows
-    .filter((row) => row._count.products > 0)
-    .map((row) => ({
-      slug: row.slug,
-      title: row.title,
-      subtitle: row.subtitle,
-      heroImageUrl: row.heroImageUrl,
-      endsAtMs: row.endsAt?.getTime() ?? null,
-      productCount: row._count.products,
-    }));
+    return rows
+      .filter((row) => row._count.products > 0)
+      .map((row) => ({
+        slug: row.slug,
+        title: row.title,
+        subtitle: row.subtitle,
+        heroImageUrl: row.heroImageUrl,
+        endsAtMs: row.endsAt?.getTime() ?? null,
+        productCount: row._count.products,
+      }));
+  } catch {
+    // DB unreachable during `next build` → empty now; fills in at runtime.
+    return [];
+  }
 }
 
 export type PromotionPageData = {

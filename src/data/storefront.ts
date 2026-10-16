@@ -20,31 +20,36 @@ export async function getMenuCategories(): Promise<MenuCategory[]> {
   cacheTag(CATALOG_TAG);
   cacheLife("hours");
 
-  const rows = await prisma.category.findMany({
-    where: { isActive: true },
-    include: { translations: { where: { locale: DEFAULT_LOCALE } } },
-  });
+  try {
+    const rows = await prisma.category.findMany({
+      where: { isActive: true },
+      include: { translations: { where: { locale: DEFAULT_LOCALE } } },
+    });
 
-  const ordered = orderCategoryTree(
-    rows.map((row) => ({
-      id: row.id,
-      parentId: row.parentId,
-      name: row.translations[0]?.name ?? row.slug,
-      position: row.position,
-      slug: row.slug,
-      imageUrl: row.imageUrl,
-    })),
-  );
+    const ordered = orderCategoryTree(
+      rows.map((row) => ({
+        id: row.id,
+        parentId: row.parentId,
+        name: row.translations[0]?.name ?? row.slug,
+        position: row.position,
+        slug: row.slug,
+        imageUrl: row.imageUrl,
+      })),
+    );
 
-  const menu: MenuCategory[] = [];
-  for (const category of ordered) {
-    if (category.depth === 0) {
-      menu.push({ id: category.id, slug: category.slug, name: category.name, imageUrl: category.imageUrl, children: [] });
-    } else if (category.depth === 1 && menu.length > 0) {
-      menu[menu.length - 1].children.push({ id: category.id, slug: category.slug, name: category.name });
+    const menu: MenuCategory[] = [];
+    for (const category of ordered) {
+      if (category.depth === 0) {
+        menu.push({ id: category.id, slug: category.slug, name: category.name, imageUrl: category.imageUrl, children: [] });
+      } else if (category.depth === 1 && menu.length > 0) {
+        menu[menu.length - 1].children.push({ id: category.id, slug: category.slug, name: category.name });
+      }
     }
+    return menu;
+  } catch {
+    // DB unreachable during `next build` → empty now; fills in at runtime (CATALOG_TAG).
+    return [];
   }
-  return menu;
 }
 
 export type ShopBrand = { id: string; slug: string; name: string; logoUrl: string | null };
@@ -54,11 +59,15 @@ export async function getShopBrands(): Promise<ShopBrand[]> {
   cacheTag(CATALOG_TAG);
   cacheLife("hours");
 
-  return prisma.brand.findMany({
-    where: { isActive: true },
-    orderBy: { name: "asc" },
-    select: { id: true, slug: true, name: true, logoUrl: true },
-  });
+  try {
+    return await prisma.brand.findMany({
+      where: { isActive: true },
+      orderBy: { name: "asc" },
+      select: { id: true, slug: true, name: true, logoUrl: true },
+    });
+  } catch {
+    return [];
+  }
 }
 
 export type ShopBanner = {
@@ -86,30 +95,34 @@ async function getActiveBanners(placement: "HERO" | "PROMO" | "MIDDLE"): Promise
   cacheTag(CATALOG_TAG);
   cacheLife("minutes");
 
-  const now = new Date();
-  const rows = await prisma.banner.findMany({
-    where: {
-      placement,
-      isActive: true,
-      OR: [{ startsAt: null }, { startsAt: { lte: now } }],
-      AND: [{ OR: [{ endsAt: null }, { endsAt: { gt: now } }] }],
-    },
-    orderBy: [{ position: "asc" }, { createdAt: "desc" }],
-  });
+  try {
+    const now = new Date();
+    const rows = await prisma.banner.findMany({
+      where: {
+        placement,
+        isActive: true,
+        OR: [{ startsAt: null }, { startsAt: { lte: now } }],
+        AND: [{ OR: [{ endsAt: null }, { endsAt: { gt: now } }] }],
+      },
+      orderBy: [{ position: "asc" }, { createdAt: "desc" }],
+    });
 
-  return rows.map((row) => ({
-    id: row.id,
-    title: row.title,
-    imageUrl: row.imageUrl,
-    imageWidth: row.imageWidth,
-    imageHeight: row.imageHeight,
-    linkUrl: row.linkUrl,
-    ctaLabel: row.ctaLabel,
-    footnote: row.footnote,
-    headline: row.headline,
-    subtitle: row.subtitle,
-    endsAt: row.endsAt?.toISOString() ?? null,
-  }));
+    return rows.map((row) => ({
+      id: row.id,
+      title: row.title,
+      imageUrl: row.imageUrl,
+      imageWidth: row.imageWidth,
+      imageHeight: row.imageHeight,
+      linkUrl: row.linkUrl,
+      ctaLabel: row.ctaLabel,
+      footnote: row.footnote,
+      headline: row.headline,
+      subtitle: row.subtitle,
+      endsAt: row.endsAt?.toISOString() ?? null,
+    }));
+  } catch {
+    return [];
+  }
 }
 
 export function getHeroSlides(): Promise<ShopBanner[]> {
@@ -148,13 +161,17 @@ export async function getLatestProducts(limit = 12): Promise<ProductCardData[]> 
   cacheTag(CATALOG_TAG);
   cacheLife("hours");
 
-  const rows = await prisma.product.findMany({
-    where: { status: "PUBLISHED", primaryCategory: { isActive: true } },
-    orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
-    take: limit,
-    include: productCardInclude,
-  });
-  return rows.map(toProductCard);
+  try {
+    const rows = await prisma.product.findMany({
+      where: { status: "PUBLISHED", primaryCategory: { isActive: true } },
+      orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+      take: limit,
+      include: productCardInclude,
+    });
+    return rows.map(toProductCard);
+  } catch {
+    return [];
+  }
 }
 
 /** "Bons plans": published products with a crossed-out price, biggest discount first. */
@@ -163,19 +180,23 @@ export async function getDealProducts(limit = 12): Promise<ProductCardData[]> {
   cacheTag(CATALOG_TAG);
   cacheLife("hours");
 
-  const rows = await prisma.product.findMany({
-    where: {
-      status: "PUBLISHED",
-      primaryCategory: { isActive: true },
-      compareAtPriceMinorUnits: { not: null },
-    },
-    include: productCardInclude,
-  });
-  return rows
-    .map(toProductCard)
-    .filter((p) => p.compareAtPriceMinorUnits !== null && p.compareAtPriceMinorUnits > p.priceMinorUnits)
-    .sort((a, b) => discountRatio(b) - discountRatio(a))
-    .slice(0, limit);
+  try {
+    const rows = await prisma.product.findMany({
+      where: {
+        status: "PUBLISHED",
+        primaryCategory: { isActive: true },
+        compareAtPriceMinorUnits: { not: null },
+      },
+      include: productCardInclude,
+    });
+    return rows
+      .map(toProductCard)
+      .filter((p) => p.compareAtPriceMinorUnits !== null && p.compareAtPriceMinorUnits > p.priceMinorUnits)
+      .sort((a, b) => discountRatio(b) - discountRatio(a))
+      .slice(0, limit);
+  } catch {
+    return [];
+  }
 }
 
 function discountRatio(p: ProductCardData) {
@@ -188,16 +209,20 @@ export async function getFeaturedProducts(limit = 12): Promise<ProductCardData[]
   cacheTag(CATALOG_TAG);
   cacheLife("hours");
 
-  const rows = await prisma.product.findMany({
-    where: { status: "PUBLISHED", primaryCategory: { isActive: true } },
-    orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
-    take: limit * 2,
-    include: productCardInclude,
-  });
-  const cards = rows.map(toProductCard);
-  const deals = cards.filter((p) => discountRatio(p) > 0).sort((a, b) => discountRatio(b) - discountRatio(a));
-  const rest = cards.filter((p) => discountRatio(p) === 0);
-  return [...deals, ...rest].slice(0, limit);
+  try {
+    const rows = await prisma.product.findMany({
+      where: { status: "PUBLISHED", primaryCategory: { isActive: true } },
+      orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+      take: limit * 2,
+      include: productCardInclude,
+    });
+    const cards = rows.map(toProductCard);
+    const deals = cards.filter((p) => discountRatio(p) > 0).sort((a, b) => discountRatio(b) - discountRatio(a));
+    const rest = cards.filter((p) => discountRatio(p) === 0);
+    return [...deals, ...rest].slice(0, limit);
+  } catch {
+    return [];
+  }
 }
 
 type ProductCardRow = Awaited<
