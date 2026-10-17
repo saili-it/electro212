@@ -11,6 +11,11 @@ const credentialsSchema = z.object({
 });
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  // Self-hosted behind a reverse proxy (Caddy terminates TLS, forwards HTTP):
+  // trust the proxy's X-Forwarded-Host/Proto so sessions work on the real
+  // domain. Without this, Auth.js rejects any non-localhost host and the login
+  // loops back. (Can also be set via the AUTH_TRUST_HOST=true env var.)
+  trustHost: true,
   session: {
     // The Credentials provider does not support the "database" session
     // strategy, so admin sessions are JWTs. This token is only an
