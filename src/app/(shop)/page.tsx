@@ -127,11 +127,17 @@ export default async function HomePage() {
       </h1>
 
       {/* Cinematic hero: a wide banner with an overlaid bar; the full nav reveals on scroll. */}
-      <section className="relative h-[460px] w-full overflow-hidden sm:h-[540px] lg:h-[620px]" aria-label="À la une">
+      <section className="relative w-full overflow-hidden" aria-label="À la une">
         {heroBanners.length > 0 ? (
-          <HeroSlider slides={heroBanners} />
+          // Phones/tablets match the banner's ~16:9 ratio so the whole artwork shows (no side-crop);
+          // desktop keeps the fixed cinematic height.
+          <div className="relative aspect-[16/9] w-full lg:aspect-auto lg:h-[620px]">
+            <HeroSlider slides={heroBanners} />
+          </div>
         ) : (
-          <HeroCarousel slides={fallbackSlides} />
+          <div className="relative h-[460px] w-full sm:h-[540px] lg:h-[620px]">
+            <HeroCarousel slides={fallbackSlides} />
+          </div>
         )}
         <ScrollHint />
       </section>
