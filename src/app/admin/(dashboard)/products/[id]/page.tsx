@@ -3,8 +3,15 @@ import { getProduct, getProductFormOptions } from "@/data/products";
 import { toMajorUnits } from "@/lib/money";
 import { PageHeader, ProductStatusBadge } from "@/components/admin/ui";
 import { ToggleActiveButton } from "../../_components/toggle-active-button";
+import { DeleteButton } from "../../_components/delete-button";
 import { ProductForm } from "../product-form";
-import { archiveProductAction, publishProductAction, unpublishProductAction, updateProductAction } from "../actions";
+import {
+  archiveProductAction,
+  deleteProductAction,
+  publishProductAction,
+  unpublishProductAction,
+  updateProductAction,
+} from "../actions";
 
 export const instant = false;
 
@@ -94,6 +101,14 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
           ),
         }}
       />
+
+      <div className="mt-8">
+        <DeleteButton
+          action={deleteProductAction.bind(null, id)}
+          confirmMessage="Supprimer définitivement ce produit ? Cette action est irréversible."
+          description="Supprime la fiche et ses images, traductions, attributs et stock. Impossible si le produit figure dans des commandes — archivez-le dans ce cas."
+        />
+      </div>
     </div>
   );
 }

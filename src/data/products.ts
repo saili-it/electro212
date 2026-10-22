@@ -364,9 +364,33 @@ export async function unpublishProduct(id: string) {
   return { ok: true as const };
 }
 
-/** Never a hard delete — archiving is the only "removal" exposed in the admin. */
+/** Archiving hides a product while preserving order history; prefer it to deletion. */
 export async function archiveProduct(id: string) {
   await requireAdmin(["SUPER_ADMIN", "CATALOG_MANAGER"]);
   await prisma.product.update({ where: { id }, data: { status: "ARCHIVED" } });
   return { ok: true as const };
+}
+
+/**
+ * Permanent delete. Blocked when the product appears in any order — archive it
+ * instead, to keep order history intact (OrderItem.productId is RESTRICT).
+ * StockMovement is a product-scoped audit log (also RESTRICT) so it's removed
+ * first; everything else (translations, images, attribute values, inventory,
+ * secondary-category links, promotion links) cascades on delete.
+ */
+export async function deleteProduct(id: string): Promise<{ ok: true } | ProductMutationError> {
+  await requireAdmin(["SUPER_ADMIN", "CATALOG_MANAGER"]);
+
+  const orderCount = await prisma.orderItem.count({ where: { productId: id } });
+  if (orderCount > 0) {
+    return {
+      error: `Ce produit figure dans ${orderCount} commande(s) — suppression impossible. Archivez-le pour le retirer du catalogue tout en conservant l'historique.`,
+    };
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.stockMovement.deleteMany({ where: { productId: id } });
+    await tx.product.delete({ where: { id } });
+  });
+  return { ok: true };
 }

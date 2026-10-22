@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import {
   archiveProduct,
   createProduct,
+  deleteProduct,
   publishProduct,
   unpublishProduct,
   updateProduct,
@@ -114,4 +115,12 @@ export async function archiveProductAction(id: string): Promise<FormState> {
   refreshStorefront();
   revalidatePath(`/admin/products/${id}`);
   return null;
+}
+
+export async function deleteProductAction(id: string): Promise<FormState> {
+  const result = await deleteProduct(id);
+  if ("error" in result) return { error: result.error };
+  revalidatePath("/admin/products");
+  refreshStorefront();
+  redirect("/admin/products");
 }
