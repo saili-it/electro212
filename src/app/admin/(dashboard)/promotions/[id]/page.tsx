@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPromotion, getPromotionProductOptions } from "@/data/promotions";
 import { dateToShopLocal } from "@/lib/datetime";
@@ -6,6 +7,7 @@ import { DeleteButton } from "../../_components/delete-button";
 import { ToggleActiveButton } from "../../_components/toggle-active-button";
 import { PromotionForm } from "../promotion-form";
 import { ProductPicker } from "../product-picker";
+import { PromotionImport } from "../promotion-import";
 import {
   addPromotionProductAction,
   deletePromotionAction,
@@ -76,7 +78,13 @@ export default async function EditPromotionPage({ params }: { params: Promise<{ 
                     )}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-medium text-slate-800">{item.name}</span>
+                    <Link
+                      href={`/admin/products/${item.productId}`}
+                      className="block truncate text-sm font-medium text-slate-800 hover:text-brand-red-600"
+                      title="Modifier le produit (prix, stock…)"
+                    >
+                      {item.name}
+                    </Link>
                     <span className="font-mono text-xs text-slate-400">{item.sku}</span>
                   </span>
                   {item.status !== "PUBLISHED" && <Badge tone="amber">Non publié</Badge>}
@@ -102,6 +110,11 @@ export default async function EditPromotionPage({ params }: { params: Promise<{ 
           <div className="mt-5 border-t border-slate-100 pt-5">
             <p className="mb-2 text-sm font-medium text-slate-700">Ajouter un produit</p>
             <ProductPicker addAction={addPromotionProductAction.bind(null, promo.id)} options={available} />
+          </div>
+
+          <div className="mt-5 border-t border-slate-100 pt-5">
+            <p className="mb-2 text-sm font-medium text-slate-700">Importer des produits (Excel)</p>
+            <PromotionImport promotionId={promo.id} />
           </div>
         </Card>
       </div>
