@@ -3,6 +3,7 @@ import type { ProductStatus } from "@prisma/client";
 import { getProductFormOptions, listProducts } from "@/data/products";
 import { formatMinorUnits } from "@/lib/money";
 import {
+  buttonVariants,
   Card,
   EmptyState,
   FilterBar,
@@ -54,8 +55,13 @@ export default async function AdminProductsPage({
         description="Gérez les fiches, prix et stocks du catalogue."
         actions={
           <>
+            {/* File-download route handler, not a page — plain anchor forces the download. */}
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+            <a href="/admin/products/export" className={buttonVariants.secondary}>
+              Exporter Excel
+            </a>
             <LinkButton href="/admin/products/import" variant="secondary">
-              Importer CSV
+              Importer Excel
             </LinkButton>
             <LinkButton href="/admin/products/new">+ Nouveau produit</LinkButton>
           </>
