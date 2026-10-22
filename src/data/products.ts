@@ -372,25 +372,38 @@ export async function archiveProduct(id: string) {
 }
 
 /**
- * Permanent delete. Blocked when the product appears in any order — archive it
- * instead, to keep order history intact (OrderItem.productId is RESTRICT).
- * StockMovement is a product-scoped audit log (also RESTRICT) so it's removed
- * first; everything else (translations, images, attribute values, inventory,
- * secondary-category links, promotion links) cascades on delete.
+ * Permanent delete. Order history survives independently: OrderItem keeps its
+ * sku/name/price snapshots and its productId is SET NULL on delete. The only
+ * hard blocker is StockMovement (RESTRICT) — a product-scoped audit log removed
+ * first; translations, images, attribute values, inventory, category links and
+ * promotion links all cascade.
  */
 export async function deleteProduct(id: string): Promise<{ ok: true } | ProductMutationError> {
   await requireAdmin(["SUPER_ADMIN", "CATALOG_MANAGER"]);
-
-  const orderCount = await prisma.orderItem.count({ where: { productId: id } });
-  if (orderCount > 0) {
-    return {
-      error: `Ce produit figure dans ${orderCount} commande(s) — suppression impossible. Archivez-le pour le retirer du catalogue tout en conservant l'historique.`,
-    };
-  }
-
   await prisma.$transaction(async (tx) => {
     await tx.stockMovement.deleteMany({ where: { productId: id } });
     await tx.product.delete({ where: { id } });
   });
   return { ok: true };
+}
+
+export type BulkDeleteResult = { deleted: number };
+
+/**
+ * Delete several products in one transaction (stock-movement logs first, then
+ * the products). Order history is preserved via OrderItem snapshots + SET NULL,
+ * so no product needs to be skipped.
+ */
+export async function bulkDeleteProducts(ids: string[]): Promise<BulkDeleteResult> {
+  await requireAdmin(["SUPER_ADMIN", "CATALOG_MANAGER"]);
+  const unique = [...new Set(ids.filter(Boolean))];
+  if (unique.length === 0) return { deleted: 0 };
+
+  let deleted = 0;
+  await prisma.$transaction(async (tx) => {
+    await tx.stockMovement.deleteMany({ where: { productId: { in: unique } } });
+    const res = await tx.product.deleteMany({ where: { id: { in: unique } } });
+    deleted = res.count;
+  });
+  return { deleted };
 }

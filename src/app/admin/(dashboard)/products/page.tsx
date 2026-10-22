@@ -1,7 +1,5 @@
-import Link from "next/link";
 import type { ProductStatus } from "@prisma/client";
 import { getProductFormOptions, listProducts } from "@/data/products";
-import { formatMinorUnits } from "@/lib/money";
 import {
   buttonVariants,
   Card,
@@ -11,26 +9,13 @@ import {
   LinkButton,
   PageHeader,
   Pagination,
-  ProductStatusBadge,
   SearchInput,
-  Table,
-  tdClass,
-  thClass,
-  trClass,
 } from "@/components/admin/ui";
+import { ProductsTable } from "./products-table";
 
 export const instant = false;
 
 const STATUSES: ProductStatus[] = ["DRAFT", "PUBLISHED", "ARCHIVED"];
-
-function StockCell({ value }: { value: number }) {
-  const tone = value <= 0 ? "text-red-600" : value <= 3 ? "text-amber-600" : "text-slate-700";
-  return (
-    <span className={`font-medium tabular-nums ${tone}`}>
-      {value <= 0 ? "Rupture" : value}
-    </span>
-  );
-}
 
 export default async function AdminProductsPage({
   searchParams,
@@ -113,41 +98,7 @@ export default async function AdminProductsPage({
             }
           />
         ) : (
-          <Table
-            head={
-              <>
-                <th className={thClass}>Produit</th>
-                <th className={thClass}>Catégorie</th>
-                <th className={`${thClass} text-right`}>Prix</th>
-                <th className={`${thClass} text-right`}>Stock dispo.</th>
-                <th className={thClass}>Statut</th>
-              </>
-            }
-          >
-            {items.map((item) => (
-              <tr key={item.id} className={trClass}>
-                <td className={tdClass}>
-                  <Link href={`/admin/products/${item.id}`} className="font-medium text-slate-900 hover:text-brand-red-600">
-                    {item.name}
-                  </Link>
-                  <p className="text-xs text-slate-500">
-                    <span className="font-mono">{item.sku}</span>
-                    {item.brandName && <> · {item.brandName}</>}
-                  </p>
-                </td>
-                <td className={`${tdClass} text-slate-600`}>{item.categoryName}</td>
-                <td className={`${tdClass} text-right font-medium tabular-nums`}>
-                  {formatMinorUnits(item.priceMinorUnits)}
-                </td>
-                <td className={`${tdClass} text-right`}>
-                  <StockCell value={item.availableStock} />
-                </td>
-                <td className={tdClass}>
-                  <ProductStatusBadge status={item.status} />
-                </td>
-              </tr>
-            ))}
-          </Table>
+          <ProductsTable items={items} />
         )}
 
         <Pagination

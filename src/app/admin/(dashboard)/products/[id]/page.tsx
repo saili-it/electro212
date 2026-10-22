@@ -1,10 +1,11 @@
 import { notFound } from "next/navigation";
 import { getProduct, getProductFormOptions } from "@/data/products";
 import { toMajorUnits } from "@/lib/money";
-import { PageHeader, ProductStatusBadge } from "@/components/admin/ui";
+import { Card, PageHeader, ProductStatusBadge } from "@/components/admin/ui";
 import { ToggleActiveButton } from "../../_components/toggle-active-button";
 import { DeleteButton } from "../../_components/delete-button";
 import { ProductForm } from "../product-form";
+import { ProductImages } from "../product-images";
 import {
   archiveProductAction,
   deleteProductAction,
@@ -70,6 +71,11 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
         }
       />
 
+      <Card className="mb-6">
+        <h2 className="mb-4 text-sm font-semibold text-slate-700">Images</h2>
+        <ProductImages productId={id} images={product.images.map((img) => ({ id: img.id, url: img.url, alt: img.alt }))} />
+      </Card>
+
       <ProductForm
         action={updateProductAction.bind(null, id)}
         categories={categories}
@@ -106,7 +112,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
         <DeleteButton
           action={deleteProductAction.bind(null, id)}
           confirmMessage="Supprimer définitivement ce produit ? Cette action est irréversible."
-          description="Supprime la fiche et ses images, traductions, attributs et stock. Impossible si le produit figure dans des commandes — archivez-le dans ce cas."
+          description="Supprime la fiche et ses images, traductions, attributs et stock. L'historique des commandes est conservé (les lignes de commande gardent le nom et le prix d'origine)."
         />
       </div>
     </div>

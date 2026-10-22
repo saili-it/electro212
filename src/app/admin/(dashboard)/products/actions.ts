@@ -4,11 +4,13 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
   archiveProduct,
+  bulkDeleteProducts,
   createProduct,
   deleteProduct,
   publishProduct,
   unpublishProduct,
   updateProduct,
+  type BulkDeleteResult,
   type ProductInput,
 } from "@/data/products";
 import { toMinorUnits } from "@/lib/money";
@@ -123,4 +125,13 @@ export async function deleteProductAction(id: string): Promise<FormState> {
   revalidatePath("/admin/products");
   refreshStorefront();
   redirect("/admin/products");
+}
+
+export async function bulkDeleteProductsAction(ids: string[]): Promise<BulkDeleteResult> {
+  const result = await bulkDeleteProducts(ids);
+  if (result.deleted > 0) {
+    revalidatePath("/admin/products");
+    refreshStorefront();
+  }
+  return result;
 }
