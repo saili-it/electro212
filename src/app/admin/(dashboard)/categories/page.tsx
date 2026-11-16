@@ -14,7 +14,7 @@ import {
   trClass,
 } from "@/components/admin/ui";
 import { ToggleActiveButton } from "../_components/toggle-active-button";
-import { deactivateCategoryAction, reactivateCategoryAction } from "./actions";
+import { deactivateCategoryAction, deleteCategoryAction, reactivateCategoryAction } from "./actions";
 
 export const instant = false;
 
@@ -67,7 +67,7 @@ export default async function AdminCategoriesPage({ searchParams }: { searchPara
                       <div>
                         <Link
                           href={`/admin/categories/${item.id}`}
-                          className={`hover:text-brand-red-600 ${isMain ? "font-semibold text-brand-navy" : "font-medium text-slate-800"}`}
+                          className={`hover:text-brand-red-600 ${isMain ? "font-semibold text-brand-dark" : "font-medium text-slate-800"}`}
                         >
                           {item.name}
                         </Link>
@@ -97,6 +97,12 @@ export default async function AdminCategoriesPage({ searchParams }: { searchPara
                       ) : (
                         <ToggleActiveButton action={reactivateCategoryAction.bind(null, item.id)} label="Réactiver" tone="success" />
                       )}
+                      <ToggleActiveButton
+                        action={deleteCategoryAction.bind(null, item.id)}
+                        label="Supprimer"
+                        tone="danger"
+                        confirmMessage={`Supprimer définitivement la catégorie « ${item.name} » ? Cette action est irréversible.`}
+                      />
                     </div>
                   </td>
                 </tr>

@@ -40,7 +40,7 @@ export async function SiteFooter() {
                   {item.icon}
                 </span>
                 <span>
-                  <span className="block text-sm font-bold text-brand-navy">{item.title}</span>
+                  <span className="block text-sm font-bold text-brand-dark">{item.title}</span>
                   <span className="block text-sm text-slate-500">{item.text}</span>
                 </span>
               </>
@@ -64,7 +64,7 @@ export async function SiteFooter() {
         </ul>
       </div>
 
-      <div className="bg-brand-navy text-slate-300">
+      <div className="bg-brand-dark text-slate-300">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <Image src="/brand/logo-on-dark.png" alt={siteConfig.name} width={628} height={444} className="h-16 w-auto" />
@@ -122,7 +122,8 @@ export async function SiteFooter() {
           </div>
         </div>
         <div className="border-t border-white/10">
-          <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-5 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+          {/* white/70 (not slate-500): readable on the deep-green footer (≈ 9:1 vs ≈ 2.8:1). */}
+          <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-5 text-xs text-white/70 sm:flex-row sm:items-center sm:justify-between">
             <p>
               © 2026 {siteConfig.name} — {siteConfig.address.company}. Tous droits réservés.
             </p>

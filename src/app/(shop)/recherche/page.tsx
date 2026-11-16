@@ -129,7 +129,7 @@ export default async function SearchPage({ searchParams }: Props) {
     <div className="mx-auto max-w-7xl px-4 py-6">
       <Breadcrumb items={[{ href: "/", name: "Accueil" }, { name: "Recherche" }]} />
 
-      <h1 className="mb-4 text-2xl font-extrabold tracking-tight text-brand-navy sm:text-3xl">
+      <h1 className="mb-4 text-2xl font-extrabold tracking-tight text-brand-dark sm:text-3xl">
         {q ? <>Résultats pour «&nbsp;{q}&nbsp;»</> : "Rechercher"}
       </h1>
 
@@ -139,7 +139,7 @@ export default async function SearchPage({ searchParams }: Props) {
         <p className="text-sm text-slate-500">Saisissez le nom d&apos;un produit ou d&apos;une marque pour lancer la recherche.</p>
       ) : items.length === 0 ? (
         <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-soft">
-          <p className="font-semibold text-brand-navy">Aucun résultat pour «&nbsp;{q}&nbsp;»</p>
+          <p className="font-semibold text-brand-dark">Aucun résultat pour «&nbsp;{q}&nbsp;»</p>
           <p className="mt-1 text-sm text-slate-500">Vérifiez l&apos;orthographe ou essayez un terme plus général.</p>
           <Link
             href="/"

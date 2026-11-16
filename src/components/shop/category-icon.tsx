@@ -1,72 +1,93 @@
-import type { ReactNode } from "react";
+import {
+  AirVent,
+  Beef,
+  Blender,
+  Cake,
+  ChefHat,
+  Citrus,
+  Coffee,
+  CookingPot,
+  Croissant,
+  CupSoda,
+  Droplets,
+  Fan,
+  Flame,
+  GlassWater,
+  Heater,
+  Microwave,
+  Monitor,
+  Package,
+  Refrigerator,
+  Sandwich,
+  SatelliteDish,
+  ShelvingUnit,
+  Shirt,
+  ShowerHead,
+  Snowflake,
+  Sparkles,
+  ThermometerSnowflake,
+  Tv,
+  TvMinimalPlay,
+  UtensilsCrossed,
+  Utensils,
+  WashingMachine,
+  Weight,
+  Wind,
+  type LucideIcon,
+} from "lucide-react";
 
-// Line icons for the main categories, used until a category photo is uploaded.
-const ICONS: Record<string, ReactNode> = {
-  "tv-et-accessoires": (
-    <>
-      <rect x="2" y="4" width="20" height="13" rx="2" />
-      <path d="M8 21h8M12 17v4" />
-    </>
-  ),
-  "gros-electromenager": (
-    <>
-      <rect x="6" y="2" width="12" height="20" rx="2" />
-      <path d="M6 10h12M9 5v2.5M9 13v3" />
-    </>
-  ),
-  "petit-electromenager": (
-    <>
-      <path d="M8 3h8l-1.2 8.5H9.2L8 3Z" />
-      <rect x="7" y="11.5" width="10" height="9.5" rx="2" />
-      <circle cx="12" cy="16.25" r="1.5" />
-    </>
-  ),
-  "confort-de-la-maison": (
-    <>
-      <rect x="2" y="4" width="20" height="9" rx="2" />
-      <path d="M6 10h12M8 16.5l-1 3M12 16.5v3M16 16.5l1 3" />
-    </>
-  ),
-  encastrable: (
-    <>
-      <rect x="3" y="3" width="18" height="18" rx="2" />
-      <path d="M3 8h18" />
-      <rect x="7" y="11" width="10" height="6.5" rx="1" />
-      <path d="M7 5.5h.01M10 5.5h.01M13 5.5h.01" />
-    </>
-  ),
-  "meuble-tv": (
-    <>
-      <rect x="7" y="2.5" width="10" height="6.5" rx="1" />
-      <path d="M12 9v2" />
-      <rect x="2" y="11" width="20" height="8" rx="1" />
-      <path d="M12 11v8M6 19v2M18 19v2" />
-    </>
-  ),
+// The main categories, by exact slug.
+const MAIN: Record<string, LucideIcon> = {
+  "tv-et-accessoires": Tv,
+  // The live TV category's actual slug.
+  "television-et-accessoire-audio": Tv,
+  "gros-electromenager": Refrigerator,
+  "petit-electromenager": Blender,
+  "confort-de-la-maison": AirVent,
+  encastrable: Microwave,
+  "meuble-tv": ShelvingUnit,
 };
 
+// Sub-categories, by a keyword in the slug — first match wins, so the more specific rules come first.
+// A new sub-category picks up an icon automatically when its name contains one of these words.
+const KEYWORDS: [RegExp, LucideIcon][] = [
+  [/televisions?-smart|smart-tv/, TvMinimalPlay],
+  [/support/, Monitor],
+  [/televis|^tv-|-tv$/, Tv],
+  [/recepteur|parabole|satellite/, SatelliteDish],
+  [/machine-a-laver|lave-linge|seche-linge/, WashingMachine],
+  [/lave-vaisselle/, Utensils],
+  [/refrigerateur|frigo/, Refrigerator],
+  [/congelateur/, Snowflake],
+  [/cuisini/, CookingPot],
+  [/chauffe-eau/, ShowerHead],
+  [/chauffage|radiateur/, Heater],
+  [/air-cooler|refroidisseur/, ThermometerSnowflake],
+  [/climatis/, AirVent],
+  [/ventilateur/, Fan],
+  [/distributeur|fontaine/, GlassWater],
+  [/plaque|plancha|barbecue/, Flame],
+  [/hotte|air-fr/, Wind],
+  [/evier/, Droplets],
+  [/four|micro-onde/, Microwave],
+  [/blender/, Blender],
+  [/mixeur/, UtensilsCrossed],
+  [/hachoir/, Beef],
+  [/robot/, ChefHat],
+  [/grill|toaster/, Sandwich],
+  [/cafetiere|cafe|expresso/, Coffee],
+  [/bouilloire/, CupSoda],
+  [/fer-a-repasser|repass/, Shirt],
+  [/batteur/, Cake],
+  [/petrin/, Croissant],
+  [/pese/, Weight],
+  [/presse-agrume|agrume/, Citrus],
+  [/beaute|seche-cheveux|lisseur/, Sparkles],
+  [/meuble/, ShelvingUnit],
+];
+
+/** Line icon for a category or sub-category (menus, and category tiles without a photo). */
 export function CategoryIcon({ slug, className = "h-10 w-10" }: { slug: string; className?: string }) {
-  const icon = ICONS[slug];
-  if (!icon) {
-    return (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className={className} aria-hidden>
-        <rect x="3" y="3" width="18" height="18" rx="3" />
-        <path d="M8 12h8" />
-      </svg>
-    );
-  }
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.5}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      {icon}
-    </svg>
-  );
+  const Icon = MAIN[slug] ?? KEYWORDS.find(([pattern]) => pattern.test(slug))?.[1] ?? Package;
+  return <Icon className={className} strokeWidth={1.75} aria-hidden />;
 }

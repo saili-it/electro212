@@ -5,6 +5,8 @@ import type { FormState } from "@/lib/form-errors";
 import { ActionForm } from "@/components/admin/action-form";
 import { NameSlugFields } from "@/components/admin/slug-fields";
 import { Card, Field, FormActions, FormFeedback, inputClass } from "@/components/admin/ui";
+import { ImageSpecHint } from "@/components/admin/image-spec-hint";
+import { IMAGE_SPECS } from "@/lib/image-specs";
 
 export type BrandFormValues = { name: string; slug: string; logoUrl: string };
 
@@ -39,13 +41,27 @@ export function BrandForm({
             slugPrefix="/marques/"
           />
           <Field
-            label="Logo (URL)"
+            label="Logo (lien ou fichier du site)"
             htmlFor="logoUrl"
             className="md:col-span-2"
-            hint="Format recommandé : SVG ou PNG transparent, 200×100."
             error={fieldError("logoUrl")}
           >
-            <input id="logoUrl" name="logoUrl" type="url" placeholder="https://…" defaultValue={values.logoUrl} className={inputClass} />
+            {values.logoUrl && (
+              <span className="mb-2 flex h-20 w-44 items-center justify-center rounded-lg border border-slate-200 bg-white p-3">
+                {/* eslint-disable-next-line @next/next/no-img-element -- admin-provided address, host not known in advance */}
+                <img src={values.logoUrl} alt={`Logo actuel de ${values.name}`} className="max-h-full max-w-full object-contain" />
+              </span>
+            )}
+            <input
+              id="logoUrl"
+              name="logoUrl"
+              type="text"
+              inputMode="url"
+              placeholder="https://… ou /brands/nom.png"
+              defaultValue={values.logoUrl}
+              className={inputClass}
+            />
+            <ImageSpecHint spec={IMAGE_SPECS.brand} />
           </Field>
         </div>
       </Card>

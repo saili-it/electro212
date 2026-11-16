@@ -18,13 +18,13 @@ export default async function PromotionsIndexPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
       <header className="mb-6">
-        <h1 className="text-2xl font-extrabold tracking-tight text-brand-navy sm:text-3xl">Promotions</h1>
+        <h1 className="text-2xl font-extrabold tracking-tight text-brand-dark sm:text-3xl">Promotions</h1>
         <p className="mt-2 text-sm text-slate-600">Nos offres et événements du moment.</p>
       </header>
 
       {promotions.length === 0 ? (
         <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-soft">
-          <p className="font-semibold text-brand-navy">Aucune promotion en cours</p>
+          <p className="font-semibold text-brand-dark">Aucune promotion en cours</p>
           <p className="mt-1 text-sm text-slate-500">Revenez bientôt pour découvrir nos prochaines offres.</p>
           <Link
             href="/"
@@ -56,7 +56,7 @@ export default async function PromotionsIndexPage() {
                 )}
               </div>
               <div className="p-5">
-                <h2 className="text-lg font-extrabold text-brand-navy group-hover:text-brand-red-700">{promo.title}</h2>
+                <h2 className="text-lg font-extrabold text-brand-dark group-hover:text-brand-red-700">{promo.title}</h2>
                 {promo.subtitle && <p className="mt-1 line-clamp-2 text-sm text-slate-500">{promo.subtitle}</p>}
                 <div className="mt-3 flex items-center justify-between text-xs">
                   <span className="font-medium text-slate-500">

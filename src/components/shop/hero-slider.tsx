@@ -40,7 +40,7 @@ function SlideOverlay({ slide }: { slide: ShopBanner }) {
           )}
           {slide.subtitle && <p className="max-w-lg text-sm text-white/90 sm:text-lg">{slide.subtitle}</p>}
           {slide.ctaLabel && (
-            <span className="mt-2 inline-flex items-center gap-2 rounded-full bg-brand-red-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition group-hover:bg-brand-red-700">
+            <span className="mt-2 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-brand-dark shadow-lg transition group-hover:bg-brand-red-600 group-hover:text-white">
               {slide.ctaLabel} <span aria-hidden>→</span>
             </span>
           )}
@@ -50,8 +50,12 @@ function SlideOverlay({ slide }: { slide: ShopBanner }) {
   );
 }
 
-/** Full-width image carousel for admin-managed hero banners (placement = HERO). */
-export function HeroSlider({ slides }: { slides: ShopBanner[] }) {
+/**
+ * Image carousel for admin-managed hero banners (placement = HERO).
+ * `frameClassName` sizes the image box (e.g. aspect ratios); the dots sit
+ * underneath it, outside the image (Electroplanet style).
+ */
+export function HeroSlider({ slides, frameClassName = "" }: { slides: ShopBanner[]; frameClassName?: string }) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [reduceMotion, setReduceMotion] = useState(false);
@@ -84,76 +88,84 @@ export function HeroSlider({ slides }: { slides: ShopBanner[] }) {
   const go = (next: number) => setIndex((next + count) % count);
 
   return (
-    <section
-      aria-roledescription="carrousel"
-      aria-label="À la une"
-      className="group relative h-full overflow-hidden bg-slate-100"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onFocusCapture={() => setPaused(true)}
-      onBlurCapture={() => setPaused(false)}
-    >
-      <div
-        className="flex h-full transition-transform duration-700 ease-out motion-reduce:transition-none"
-        style={{ transform: `translateX(-${current * 100}%)` }}
+    <div>
+      <section
+        aria-roledescription="carrousel"
+        aria-label="À la une"
+        className={`group relative overflow-hidden bg-slate-100 ${frameClassName}`}
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+        onFocusCapture={() => setPaused(true)}
+        onBlurCapture={() => setPaused(false)}
       >
-        {visible.map((slide, i) => (
-          <div
-            key={slide.id}
-            role="group"
-            aria-roledescription="diapositive"
-            aria-label={`${i + 1} sur ${count}`}
-            aria-hidden={i !== current}
-            inert={i !== current}
-            className="relative h-full w-full shrink-0"
-          >
-            <SlideLink slide={slide}>
-              <Image
-                src={slide.imageUrl}
-                alt={slide.title}
-                fill
-                priority={i === 0}
-                sizes="100vw"
-                className="object-cover transition duration-700 group-hover:scale-[1.02]"
-              />
-              <SlideOverlay slide={slide} />
-            </SlideLink>
-          </div>
-        ))}
-      </div>
+        <div
+          className="flex h-full transition-transform duration-700 ease-out motion-reduce:transition-none"
+          style={{ transform: `translateX(-${current * 100}%)` }}
+        >
+          {visible.map((slide, i) => (
+            <div
+              key={slide.id}
+              role="group"
+              aria-roledescription="diapositive"
+              aria-label={`${i + 1} sur ${count}`}
+              aria-hidden={i !== current}
+              inert={i !== current}
+              className="relative h-full w-full shrink-0"
+            >
+              <SlideLink slide={slide}>
+                <Image
+                  src={slide.imageUrl}
+                  alt={slide.title}
+                  fill
+                  priority={i === 0}
+                  sizes="100vw"
+                  className="object-cover transition duration-700 group-hover:scale-[1.02]"
+                />
+                <SlideOverlay slide={slide} />
+              </SlideLink>
+            </div>
+          ))}
+        </div>
 
+        {count > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={() => go(current - 1)}
+              aria-label="Diapositive précédente"
+              className="absolute left-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-brand-dark shadow transition hover:bg-white group-hover:flex sm:flex sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100"
+            >
+              ‹
+            </button>
+            <button
+              type="button"
+              onClick={() => go(current + 1)}
+              aria-label="Diapositive suivante"
+              className="absolute right-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-brand-dark shadow transition hover:bg-white group-hover:flex sm:flex sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100"
+            >
+              ›
+            </button>
+          </>
+        )}
+      </section>
+
+      {/* Dots under the image: filled = current slide, outlined = the others. */}
       {count > 1 && (
-        <>
-          <button
-            type="button"
-            onClick={() => go(current - 1)}
-            aria-label="Diapositive précédente"
-            className="absolute left-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-brand-navy shadow transition hover:bg-white group-hover:flex sm:flex sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100"
-          >
-            ‹
-          </button>
-          <button
-            type="button"
-            onClick={() => go(current + 1)}
-            aria-label="Diapositive suivante"
-            className="absolute right-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-brand-navy shadow transition hover:bg-white group-hover:flex sm:flex sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100"
-          >
-            ›
-          </button>
-          <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-2">
-            {visible.map((slide, i) => (
-              <button
-                key={slide.id}
-                type="button"
-                onClick={() => go(i)}
-                aria-label={`Aller à la diapositive ${i + 1}`}
-                aria-current={i === current}
-                className={`h-2 rounded-full transition-all ${i === current ? "w-7 bg-white" : "w-2 bg-white/60 hover:bg-white/90"}`}
-              />
-            ))}
-          </div>
-        </>
+        <div className="mt-3 flex justify-center gap-2">
+          {visible.map((slide, i) => (
+            <button
+              key={slide.id}
+              type="button"
+              onClick={() => go(i)}
+              aria-label={`Aller à la diapositive ${i + 1}`}
+              aria-current={i === current}
+              className={`h-3 w-3 rounded-full border-2 transition ${
+                i === current ? "border-brand-dark bg-brand-dark" : "border-slate-400 bg-white hover:border-brand-dark"
+              }`}
+            />
+          ))}
+        </div>
       )}
-    </section>
+    </div>
   );
 }

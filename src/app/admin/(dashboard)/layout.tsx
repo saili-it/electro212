@@ -42,7 +42,7 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
 
   const userCard = (
     <div className="flex items-center gap-3 rounded-lg bg-white/5 p-3">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-green text-xs font-semibold text-brand-navy">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-green text-xs font-semibold text-brand-dark">
         {initials}
       </div>
       <div className="min-w-0 flex-1">
@@ -56,13 +56,13 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
   return (
     // Forced light surface: the admin should look the same regardless of the OS dark-mode setting.
     <div className="flex min-h-screen flex-1 bg-surface text-slate-900 [color-scheme:light]">
-      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col gap-8 overflow-y-auto bg-brand-navy px-4 py-6 lg:flex">
+      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col gap-8 overflow-y-auto bg-brand-dark px-4 py-6 lg:flex">
         <Brand />
         <AdminNav footer={userCard} />
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <details className="group border-b border-brand-navy-800 bg-brand-navy lg:hidden">
+        <details className="group border-b border-brand-dark-800 bg-brand-dark lg:hidden">
           <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3">
             <Brand compact />
             <span className="rounded-md px-2 py-1 text-sm text-slate-300 group-open:bg-white/10">Menu</span>

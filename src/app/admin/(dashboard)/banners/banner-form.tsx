@@ -5,6 +5,8 @@ import type { FormState } from "@/lib/form-errors";
 import { formatShopDeadline, shopLocalToDate } from "@/lib/datetime";
 import { ActionForm } from "@/components/admin/action-form";
 import { Card, Field, FormActions, FormFeedback, inputClass } from "@/components/admin/ui";
+import { ImageSpecHint } from "@/components/admin/image-spec-hint";
+import { ACCEPTED_IMAGE_TYPES, IMAGE_SPECS, formatMegabytes } from "@/lib/image-specs";
 import { PLACEMENTS, type PlacementKey } from "./placements";
 
 export type BannerFormValues = {
@@ -33,9 +35,6 @@ const EMPTY: BannerFormValues = {
   imageUrl: null,
 };
 
-const HERO_MAX_BYTES = 6 * 1024 * 1024;
-const PROMO_MAX_BYTES = 5 * 1024 * 1024;
-
 export function BannerForm({
   action,
   placementKey,
@@ -50,7 +49,9 @@ export function BannerForm({
   linkSuggestions: { path: string; label: string }[];
 }) {
   const config = PLACEMENTS[placementKey];
-  const maxBytes = placementKey === "hero" ? HERO_MAX_BYTES : PROMO_MAX_BYTES;
+  // Same limit the server enforces for this placement (lib/image-specs.ts).
+  const imageSpec = IMAGE_SPECS[placementKey];
+  const maxBytes = imageSpec.rules.maxBytes;
   const cancelHref = `/admin/banners?placement=${placementKey}`;
 
   const [state, dispatch, pending] = useActionState(action, null);
@@ -130,14 +131,13 @@ export function BannerForm({
         <Field
           label={values.imageUrl ? "Remplacer l'image (optionnel)" : `Image de la ${config.singular}`}
           htmlFor="image"
-          hint={`${config.sizeHint} Elle sera convertie et optimisée automatiquement.`}
           error={fileError ?? fieldError("image")}
         >
           <input
             id="image"
             name="image"
             type="file"
-            accept="image/jpeg,image/png,image/webp"
+            accept={ACCEPTED_IMAGE_TYPES}
             required={!values.imageUrl}
             onChange={(event) => {
               const file = event.target.files?.[0];
@@ -147,7 +147,7 @@ export function BannerForm({
                 return;
               }
               if (file.size > maxBytes) {
-                setFileError(`Image trop lourde (${Math.round(maxBytes / 1024 / 1024)} Mo maximum).`);
+                setFileError(`Image trop lourde (${formatMegabytes(maxBytes)} maximum).`);
                 event.target.value = "";
                 setPreview(values.imageUrl);
                 return;
@@ -156,6 +156,7 @@ export function BannerForm({
             }}
             className="block w-full text-sm text-slate-600 file:mr-4 file:rounded-lg file:border-0 file:bg-brand-red-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-brand-red-700 hover:file:bg-brand-red-50/70"
           />
+          <ImageSpecHint spec={imageSpec} />
         </Field>
       </Card>
 

@@ -98,13 +98,13 @@ export default async function PromotionPage({ params, searchParams }: Props) {
         </ol>
       </nav>
 
-      <header className="mb-6 overflow-hidden rounded-3xl bg-brand-navy text-white shadow-soft">
+      <header className="mb-6 overflow-hidden rounded-3xl bg-brand-dark text-white shadow-soft">
         <div className="relative">
           {data.heroImageUrl && (
             // eslint-disable-next-line @next/next/no-img-element -- storage host isn't configured for next/image
             <img src={data.heroImageUrl} alt={data.title} className="h-48 w-full object-cover opacity-70 sm:h-64" />
           )}
-          <div className={`${data.heroImageUrl ? "absolute inset-0 bg-gradient-to-r from-brand-navy/85 to-brand-navy/30" : ""} flex flex-col justify-center gap-2 p-6 sm:p-10`}>
+          <div className={`${data.heroImageUrl ? "absolute inset-0 bg-gradient-to-r from-brand-dark/85 to-brand-dark/30" : ""} flex flex-col justify-center gap-2 p-6 sm:p-10`}>
             <h1 className="text-2xl font-extrabold tracking-tight sm:text-4xl">{data.title}</h1>
             {data.subtitle && <p className="max-w-2xl text-sm text-white/90 sm:text-base">{data.subtitle}</p>}
             {data.endsAtMs && (
@@ -120,7 +120,7 @@ export default async function PromotionPage({ params, searchParams }: Props) {
 
       {items.length === 0 ? (
         <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-soft">
-          <p className="font-semibold text-brand-navy">Aucun produit disponible</p>
+          <p className="font-semibold text-brand-dark">Aucun produit disponible</p>
           <p className="mt-1 text-sm text-slate-500">Les produits de cette promotion ne sont pas disponibles pour le moment.</p>
           <Link href="/promotions" className="mt-4 inline-block text-sm font-medium text-brand-red-700 hover:underline">
             Voir les autres promotions

@@ -5,12 +5,14 @@ import { prisma } from "@/lib/prisma";
 import { DEFAULT_LOCALE } from "@/lib/i18n";
 import { orderCategoryTree } from "@/lib/category-tree";
 import { ValidationError } from "@/lib/errors";
+import { imageAddressSchema } from "@/lib/image-address";
 
 const categoryInputSchema = z.object({
   slug: z.string().min(1).max(160),
   parentId: z.string().nullable().optional(),
   position: z.number().int().default(0),
-  imageUrl: z.string().url().nullable().optional(),
+  // The main categories use files shipped with the site ("/categories/….webp"), not web links.
+  imageUrl: imageAddressSchema.nullable().optional(),
   nameFr: z.string().min(1).max(200),
   nameAr: z.string().max(200).optional(),
   seoTitleFr: z.string().max(200).optional(),

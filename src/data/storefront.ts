@@ -13,7 +13,9 @@ import { orderCategoryTree } from "@/lib/category-tree";
  */
 
 export type MenuCategory = { id: string; slug: string; name: string; imageUrl: string | null; children: MenuChild[] };
-export type MenuChild = { id: string; slug: string; name: string };
+/** A sub-category, with its own sub-categories (the menu's "group heading + items"). */
+export type MenuChild = { id: string; slug: string; name: string; children: MenuLeaf[] };
+export type MenuLeaf = { id: string; slug: string; name: string };
 
 export async function getMenuCategories(): Promise<MenuCategory[]> {
   "use cache";
@@ -42,7 +44,10 @@ export async function getMenuCategories(): Promise<MenuCategory[]> {
       if (category.depth === 0) {
         menu.push({ id: category.id, slug: category.slug, name: category.name, imageUrl: category.imageUrl, children: [] });
       } else if (category.depth === 1 && menu.length > 0) {
-        menu[menu.length - 1].children.push({ id: category.id, slug: category.slug, name: category.name });
+        menu[menu.length - 1].children.push({ id: category.id, slug: category.slug, name: category.name, children: [] });
+      } else if (category.depth === 2) {
+        // Depth-first order: a depth-2 row belongs to the latest depth-1 row of the latest root.
+        menu.at(-1)?.children.at(-1)?.children.push({ id: category.id, slug: category.slug, name: category.name });
       }
     }
     return menu;
@@ -129,6 +134,7 @@ export function getHeroSlides(): Promise<ShopBanner[]> {
   return getActiveBanners("HERO");
 }
 
+/** "Publicités" banners — the first two are shown stacked beside the hero slider. */
 export function getPromoBanners(): Promise<ShopBanner[]> {
   return getActiveBanners("PROMO");
 }

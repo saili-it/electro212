@@ -7,26 +7,25 @@ import { ValidationError } from "@/lib/errors";
 const ALLOWED_FORMATS = new Set(["jpeg", "png", "webp"]);
 const MAX_INPUT_PIXELS = 40_000_000; // guards against decompression bombs
 
-export type ImageRules = {
-  maxBytes: number;
-  minWidth: number;
-  minHeight: number;
-  /** Larger images are downscaled to this width. */
-  maxWidth: number;
-};
+// The limits live in lib/image-specs.ts (shared with the admin hints); re-exported here for existing callers.
+import {
+  BANNER_IMAGE_RULES,
+  HERO_IMAGE_RULES,
+  MIDDLE_IMAGE_RULES,
+  SIDE_IMAGE_RULES,
+  type ImageRules,
+} from "@/lib/image-specs";
+
+export {
+  BANNER_IMAGE_RULES,
+  HERO_IMAGE_RULES,
+  MIDDLE_IMAGE_RULES,
+  PRODUCT_IMAGE_RULES,
+  SIDE_IMAGE_RULES,
+  type ImageRules,
+} from "@/lib/image-specs";
 
 export type ProcessedImage = { buffer: Buffer; width: number; height: number; contentType: "image/webp"; ext: "webp" };
-
-// Promo card (~10:3). Kept named BANNER_IMAGE_RULES for existing callers/tests.
-export const BANNER_IMAGE_RULES: ImageRules = { maxBytes: 5 * 1024 * 1024, minWidth: 600, minHeight: 150, maxWidth: 1600 };
-// Hero slide: wide, high-res (~16:7), shown large so it allows a bigger file and width.
-export const HERO_IMAGE_RULES: ImageRules = { maxBytes: 6 * 1024 * 1024, minWidth: 1000, minHeight: 360, maxWidth: 2000 };
-// Side insert (~5:2) beside the hero. (Placement currently unused.)
-export const SIDE_IMAGE_RULES: ImageRules = { maxBytes: 4 * 1024 * 1024, minWidth: 500, minHeight: 180, maxWidth: 1000 };
-// Mid-page advertising banner: wide strip (~4:1).
-export const MIDDLE_IMAGE_RULES: ImageRules = { maxBytes: 5 * 1024 * 1024, minWidth: 1000, minHeight: 220, maxWidth: 2000 };
-// Product photo: shown up to ~600px (≈1400 on a 2× display), so cap there; allow large source files.
-export const PRODUCT_IMAGE_RULES: ImageRules = { maxBytes: 15 * 1024 * 1024, minWidth: 200, minHeight: 200, maxWidth: 1400 };
 
 export const BANNER_PLACEMENT_RULES = {
   HERO: HERO_IMAGE_RULES,

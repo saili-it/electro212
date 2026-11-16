@@ -58,6 +58,13 @@ docker compose exec app npm run db:import-catalog
 
 Les **photos produit** s'ajoutent ensuite depuis l'admin (elles ne sont pas incluses dans l'image).
 
+```bash
+# Logos des marques (« Nos marques ») : attribue les logos de public/brands/ et crée les marques manquantes.
+# Sans danger à relancer. Le site garde la liste des marques en mémoire (~1 h) : on redémarre pour l'afficher tout de suite.
+docker compose exec app npm run db:load-brand-logos
+docker compose restart app
+```
+
 ## 5. Créer le compte administrateur
 
 Indispensable pour se connecter à `/admin` (le seed n'en crée pas) :

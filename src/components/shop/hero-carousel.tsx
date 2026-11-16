@@ -6,7 +6,7 @@ import type { HeroSlide } from "@/config/home";
 import { CategoryIcon } from "./category-icon";
 
 const THEMES: Record<HeroSlide["theme"], { bg: string; accent: string; button: string }> = {
-  navy: { bg: "bg-brand-navy", accent: "text-brand-green", button: "bg-brand-red-600 text-white hover:bg-brand-red-700" },
+  navy: { bg: "bg-brand-dark", accent: "text-brand-green", button: "bg-brand-red-600 text-white hover:bg-brand-red-700" },
   red: { bg: "bg-brand-red-600", accent: "text-white/80", button: "bg-white text-brand-red-700 hover:bg-brand-red-50" },
   // green-700, not the logo green: white text on #1ab25d is only 2.8:1.
   green: { bg: "bg-brand-green-700", accent: "text-white/80", button: "bg-white text-brand-green-700 hover:bg-brand-green-50" },
@@ -88,7 +88,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
             type="button"
             onClick={() => go(index - 1)}
             aria-label="Diapositive précédente"
-            className="absolute left-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-brand-navy shadow transition hover:bg-white group-hover:flex sm:flex sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100"
+            className="absolute left-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-brand-dark shadow transition hover:bg-white group-hover:flex sm:flex sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100"
           >
             ‹
           </button>
@@ -96,7 +96,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
             type="button"
             onClick={() => go(index + 1)}
             aria-label="Diapositive suivante"
-            className="absolute right-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-brand-navy shadow transition hover:bg-white group-hover:flex sm:flex sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100"
+            className="absolute right-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-brand-dark shadow transition hover:bg-white group-hover:flex sm:flex sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100"
           >
             ›
           </button>

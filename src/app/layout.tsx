@@ -1,12 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import { Geist_Mono, Poppins } from "next/font/google";
 import { siteConfig } from "@/config/site";
 import "./globals.css";
 
-// Friendly, modern geometric sans — warmer than a neutral grotesque, legible at every size.
-const jakarta = Plus_Jakarta_Sans({
-  variable: "--font-jakarta",
+// Rounded geometric sans with strong bold weights. Poppins is not a variable font,
+// so every weight the UI uses (regular → extrabold) is listed.
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
 });
 
@@ -36,14 +38,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0d0625",
+  themeColor: "#d42f2b",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="fr"
-      className={`${jakarta.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${poppins.variable} ${geistMono.variable} h-full antialiased`}
       // The inline script below sets data-anim before hydration; ignore that one attribute diff.
       suppressHydrationWarning
     >

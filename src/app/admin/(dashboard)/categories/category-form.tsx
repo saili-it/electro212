@@ -5,6 +5,8 @@ import type { FormState } from "@/lib/form-errors";
 import { ActionForm } from "@/components/admin/action-form";
 import { NameSlugFields } from "@/components/admin/slug-fields";
 import { Card, Field, FormActions, FormFeedback, inputClass } from "@/components/admin/ui";
+import { ImageSpecHint } from "@/components/admin/image-spec-hint";
+import { IMAGE_SPECS } from "@/lib/image-specs";
 
 export type CategoryFormValues = {
   slug: string;
@@ -94,15 +96,17 @@ export function CategoryForm({
           <Field label="Ordre d'affichage" htmlFor="position" hint="Plus petit = affiché en premier.">
             <input id="position" type="number" name="position" defaultValue={values.position} className={inputClass} />
           </Field>
-          <Field label="Image (URL)" htmlFor="imageUrl" className="md:col-span-3" error={fieldError("imageUrl")}>
+          <Field label="Image (lien ou fichier du site)" htmlFor="imageUrl" className="md:col-span-3" error={fieldError("imageUrl")}>
             <input
               id="imageUrl"
               name="imageUrl"
-              type="url"
-              placeholder="https://…"
+              type="text"
+              inputMode="url"
+              placeholder="https://… ou /categories/nom.webp"
               defaultValue={values.imageUrl ?? ""}
               className={inputClass}
             />
+            <ImageSpecHint spec={IMAGE_SPECS.category} />
           </Field>
         </div>
       </Card>

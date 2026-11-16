@@ -5,6 +5,8 @@ import type { FormState } from "@/lib/form-errors";
 import { ActionForm } from "@/components/admin/action-form";
 import { NameSlugFields } from "@/components/admin/slug-fields";
 import { Card, Field, FormActions, FormFeedback, inputClass } from "@/components/admin/ui";
+import { ImageSpecHint } from "@/components/admin/image-spec-hint";
+import { ACCEPTED_IMAGE_TYPES, IMAGE_SPECS, formatMegabytes } from "@/lib/image-specs";
 
 export type PromotionFormValues = {
   title: string;
@@ -28,7 +30,9 @@ const EMPTY: PromotionFormValues = {
   heroImageUrl: null,
 };
 
-const HERO_MAX_BYTES = 6 * 1024 * 1024;
+// Same limit the server enforces for promotion headers (lib/image-specs.ts).
+const HERO_SPEC = IMAGE_SPECS.promotionHero;
+const HERO_MAX_BYTES = HERO_SPEC.rules.maxBytes;
 
 export function PromotionForm({
   action,
@@ -89,14 +93,13 @@ export function PromotionForm({
         <Field
           label={values.heroImageUrl ? "Remplacer l'image (optionnel)" : "Image d'en-tête"}
           htmlFor="image"
-          hint="JPEG, PNG ou WebP, idéalement 2000×875. Convertie et optimisée automatiquement."
           error={fileError ?? fieldError("image")}
         >
           <input
             id="image"
             name="image"
             type="file"
-            accept="image/jpeg,image/png,image/webp"
+            accept={ACCEPTED_IMAGE_TYPES}
             onChange={(event) => {
               const file = event.target.files?.[0];
               setFileError(null);
@@ -105,7 +108,7 @@ export function PromotionForm({
                 return;
               }
               if (file.size > HERO_MAX_BYTES) {
-                setFileError("Image trop lourde (6 Mo maximum).");
+                setFileError(`Image trop lourde (${formatMegabytes(HERO_MAX_BYTES)} maximum).`);
                 event.target.value = "";
                 setPreview(values.heroImageUrl);
                 return;
@@ -114,6 +117,7 @@ export function PromotionForm({
             }}
             className="block w-full text-sm text-slate-600 file:mr-4 file:rounded-lg file:border-0 file:bg-brand-red-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-brand-red-700 hover:file:bg-brand-red-50/70"
           />
+          <ImageSpecHint spec={HERO_SPEC} />
         </Field>
       </Card>
 

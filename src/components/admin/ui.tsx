@@ -102,7 +102,7 @@ const badgeTones = {
   gray: "bg-slate-100 text-slate-600 ring-slate-500/20",
   amber: "bg-amber-50 text-amber-800 ring-amber-600/20",
   red: "bg-brand-red-50 text-brand-red-700 ring-brand-red/25",
-  navy: "bg-brand-navy/5 text-brand-navy ring-brand-navy/15",
+  navy: "bg-brand-dark/5 text-brand-dark ring-brand-dark/15",
 } as const;
 
 export function Badge({ children, tone = "gray" }: { children: ReactNode; tone?: keyof typeof badgeTones }) {

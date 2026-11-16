@@ -12,7 +12,7 @@ type Facets = {
 function FacetGroup({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="border-t border-slate-100 py-4 first:border-t-0 first:pt-0">
-      <p className="mb-3 text-sm font-bold text-brand-navy">{title}</p>
+      <p className="mb-3 text-sm font-bold text-brand-dark">{title}</p>
       {children}
     </div>
   );
@@ -32,7 +32,7 @@ function CheckOption({
   checked: boolean;
 }) {
   return (
-    <label className="flex cursor-pointer items-center gap-2.5 py-1 text-sm text-slate-700 hover:text-brand-navy">
+    <label className="flex cursor-pointer items-center gap-2.5 py-1 text-sm text-slate-700 hover:text-brand-dark">
       <input type="checkbox" name={name} value={value} defaultChecked={checked} className="h-4 w-4 accent-brand-red-600" />
       <span className="flex-1">{label}</span>
       <span className="text-xs text-slate-400">{count}</span>

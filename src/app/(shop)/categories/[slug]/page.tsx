@@ -171,7 +171,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
       />
 
       <header className="mb-6">
-        <h1 className="text-2xl font-extrabold tracking-tight text-brand-navy sm:text-3xl">{data.name}</h1>
+        <h1 className="text-2xl font-extrabold tracking-tight text-brand-dark sm:text-3xl">{data.name}</h1>
         {data.intro && <p className="mt-2 max-w-3xl text-sm text-slate-600">{data.intro}</p>}
       </header>
 
@@ -194,7 +194,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         <aside className="lg:w-64 lg:shrink-0">
           {/* Mobile: collapsible drawer. */}
           <details className="lg:hidden">
-            <summary className="flex cursor-pointer list-none items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-brand-navy shadow-soft">
+            <summary className="flex cursor-pointer list-none items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-brand-dark shadow-soft">
               Filtrer{isFiltered ? " · actifs" : ""}
               <span aria-hidden>▾</span>
             </summary>
@@ -214,7 +214,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
 
           {items.length === 0 ? (
             <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-soft">
-              <p className="font-semibold text-brand-navy">Aucun produit</p>
+              <p className="font-semibold text-brand-dark">Aucun produit</p>
               <p className="mt-1 text-sm text-slate-500">
                 {isFiltered
                   ? "Aucun produit ne correspond à ces filtres."

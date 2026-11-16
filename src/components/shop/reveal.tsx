@@ -35,7 +35,9 @@ export function Reveal({
           }
         }
       },
-      { threshold: 0.1, rootMargin: "0px 0px -8% 0px" },
+      // Threshold 0: reveal as soon as the top edge is in view. A share of the element's
+      // height would keep a tall block (a product grid on a phone) invisible until scrolled.
+      { threshold: 0, rootMargin: "0px 0px -8% 0px" },
     );
     observer.observe(el);
     return () => observer.disconnect();

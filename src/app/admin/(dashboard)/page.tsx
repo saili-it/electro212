@@ -20,7 +20,7 @@ function StatCard({
   tone?: "slate" | "amber" | "red" | "green";
 }) {
   const accents = {
-    slate: { text: "text-brand-navy", bar: "bg-slate-200" },
+    slate: { text: "text-brand-dark", bar: "bg-slate-200" },
     amber: { text: "text-amber-600", bar: "bg-amber-400" },
     red: { text: "text-brand-red-600", bar: "bg-brand-red" },
     green: { text: "text-brand-green-700", bar: "bg-brand-green" },

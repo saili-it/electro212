@@ -26,20 +26,20 @@ export function ContactForm() {
     <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="c-name" className="text-sm font-medium text-brand-navy">
+          <label htmlFor="c-name" className="text-sm font-medium text-brand-dark">
             Nom <span className="font-normal text-slate-400">(facultatif)</span>
           </label>
           <input id="c-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Votre nom" className={inputClass} />
         </div>
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="c-phone" className="text-sm font-medium text-brand-navy">
+          <label htmlFor="c-phone" className="text-sm font-medium text-brand-dark">
             Téléphone <span className="font-normal text-slate-400">(facultatif)</span>
           </label>
           <input id="c-phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="06 00 00 00 00" className={inputClass} />
         </div>
       </div>
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="c-message" className="text-sm font-medium text-brand-navy">
+        <label htmlFor="c-message" className="text-sm font-medium text-brand-dark">
           Votre message
         </label>
         <textarea
@@ -68,7 +68,7 @@ export function ContactForm() {
           onClick={() => {
             window.location.href = mailtoUrl("Demande via le site Electro212", body);
           }}
-          className="flex flex-1 items-center justify-center gap-2.5 rounded-full border border-slate-200 px-6 py-3.5 text-sm font-semibold text-brand-navy transition hover:bg-surface disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex flex-1 items-center justify-center gap-2.5 rounded-full border border-slate-200 px-6 py-3.5 text-sm font-semibold text-brand-dark transition hover:bg-surface disabled:cursor-not-allowed disabled:opacity-50"
         >
           Envoyer par e-mail
         </button>

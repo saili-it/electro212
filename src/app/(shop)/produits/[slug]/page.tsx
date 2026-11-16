@@ -158,12 +158,12 @@ export default async function ProductPage({ params }: Props) {
           {product.brand && (
             <Link
               href={`/marques/${product.brand.slug}`}
-              className="text-sm font-bold uppercase tracking-wide text-brand-navy hover:text-brand-red-700"
+              className="text-sm font-bold uppercase tracking-wide text-brand-dark hover:text-brand-red-700"
             >
               {product.brand.name}
             </Link>
           )}
-          <h1 className="mt-1 text-2xl font-extrabold leading-tight tracking-tight text-brand-navy sm:text-3xl">
+          <h1 className="mt-1 text-2xl font-extrabold leading-tight tracking-tight text-brand-dark sm:text-3xl">
             {product.name}
           </h1>
           <p className="mt-2 text-xs text-slate-400">Réf. {product.sku}</p>
@@ -183,7 +183,7 @@ export default async function ProductPage({ params }: Props) {
             </div>
             <Price
               minorUnits={product.priceMinorUnits}
-              className={`mt-1 text-2xl ${hasDiscount ? "text-brand-red-600" : "text-brand-navy"}`}
+              className={`mt-1 text-2xl ${hasDiscount ? "text-brand-red-600" : "text-brand-dark"}`}
             />
             {savings > 0 && (
               <p className="mt-1 text-sm font-semibold text-brand-green-700">
@@ -236,7 +236,7 @@ export default async function ProductPage({ params }: Props) {
         <div className="mt-12 grid gap-8 lg:grid-cols-2 lg:gap-12">
           {product.description && (
             <section aria-labelledby="desc-title">
-              <h2 id="desc-title" className="text-xl font-extrabold tracking-tight text-brand-navy">
+              <h2 id="desc-title" className="text-xl font-extrabold tracking-tight text-brand-dark">
                 Description
               </h2>
               <div className="mt-4 whitespace-pre-line text-sm leading-relaxed text-slate-600">{product.description}</div>
@@ -245,14 +245,14 @@ export default async function ProductPage({ params }: Props) {
 
           {product.specs.length > 0 && (
             <section aria-labelledby="specs-title">
-              <h2 id="specs-title" className="text-xl font-extrabold tracking-tight text-brand-navy">
+              <h2 id="specs-title" className="text-xl font-extrabold tracking-tight text-brand-dark">
                 Caractéristiques
               </h2>
               <dl className="mt-4 overflow-hidden rounded-2xl ring-1 ring-slate-200/70">
                 {product.specs.map((spec, i) => (
                   <div key={spec.label} className={`flex gap-4 px-4 py-3 text-sm ${i % 2 === 0 ? "bg-white" : "bg-surface/60"}`}>
                     <dt className="w-2/5 shrink-0 font-medium text-slate-500">{spec.label}</dt>
-                    <dd className="font-semibold text-brand-navy">{spec.value}</dd>
+                    <dd className="font-semibold text-brand-dark">{spec.value}</dd>
                   </div>
                 ))}
               </dl>
@@ -263,11 +263,14 @@ export default async function ProductPage({ params }: Props) {
 
       {product.related.length > 0 && (
         <section className="mt-14" aria-labelledby="related-title">
-          <h2 id="related-title" className="mb-6 flex items-center gap-3 text-2xl font-extrabold tracking-tight text-brand-navy">
-            <span className="h-7 w-1.5 shrink-0 rounded-full bg-gradient-to-b from-brand-red to-brand-red-700" aria-hidden />
-            Dans la même catégorie
-          </h2>
-          <ProductCarousel label="Produits similaires">
+          <ProductCarousel
+            label="Produits similaires"
+            heading={
+              <h2 id="related-title" className="text-xl font-extrabold tracking-tight text-brand-dark sm:text-2xl">
+                Dans la même catégorie
+              </h2>
+            }
+          >
             {product.related.map((related) => (
               <div key={related.id} className="w-[46%] shrink-0 snap-start sm:w-[31%] lg:w-[23.5%] xl:w-[19%]">
                 <ProductCard product={related} className="h-full" />

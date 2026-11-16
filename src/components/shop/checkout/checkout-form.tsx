@@ -13,7 +13,7 @@ type Mode = "livraison-cod" | "livraison-virement" | "retrait-magasin";
 
 const inputClass =
   "h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-900 placeholder:text-slate-400 shadow-soft transition focus:border-brand-red focus:outline-none focus:ring-4 focus:ring-brand-red/10";
-const labelClass = "text-sm font-medium text-brand-navy";
+const labelClass = "text-sm font-medium text-brand-dark";
 
 const MODES: { value: Mode; title: string; hint: string }[] = [
   { value: "livraison-cod", title: "Livraison — paiement à la livraison", hint: "Vous réglez en espèces à la réception." },
@@ -83,7 +83,7 @@ export function CheckoutForm() {
     return (
       <div className="mt-6 flex flex-col items-center rounded-2xl bg-white p-12 text-center shadow-soft ring-1 ring-slate-200/70">
         <ImagePlaceholderIcon className="h-16 w-16 text-slate-200" />
-        <p className="mt-4 text-lg font-semibold text-brand-navy">Votre panier est vide</p>
+        <p className="mt-4 text-lg font-semibold text-brand-dark">Votre panier est vide</p>
         <p className="mt-1 text-sm text-slate-500">Ajoutez des produits avant de passer commande.</p>
         <Link
           href="/"
@@ -119,7 +119,7 @@ export function CheckoutForm() {
         )}
 
         <section className="rounded-2xl bg-white p-6 shadow-soft ring-1 ring-slate-200/70">
-          <h2 className="text-lg font-extrabold text-brand-navy">Vos coordonnées</h2>
+          <h2 className="text-lg font-extrabold text-brand-dark">Vos coordonnées</h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <Field label="Nom complet" htmlFor="contactName" error={fieldError("contactName")}>
               <input id="contactName" name="contactName" type="text" autoComplete="name" required placeholder="Votre nom" className={inputClass} />
@@ -134,7 +134,7 @@ export function CheckoutForm() {
         </section>
 
         <section className="rounded-2xl bg-white p-6 shadow-soft ring-1 ring-slate-200/70">
-          <h2 className="text-lg font-extrabold text-brand-navy">Réception &amp; paiement</h2>
+          <h2 className="text-lg font-extrabold text-brand-dark">Réception &amp; paiement</h2>
           <div className="mt-4 flex flex-col gap-2.5">
             {MODES.map((option) => {
               const active = mode === option.value;
@@ -154,7 +154,7 @@ export function CheckoutForm() {
                     className="mt-1 h-4 w-4 accent-brand-red"
                   />
                   <span className="flex flex-col">
-                    <span className="text-sm font-semibold text-brand-navy">{option.title}</span>
+                    <span className="text-sm font-semibold text-brand-dark">{option.title}</span>
                     <span className="text-xs text-slate-500">{option.hint}</span>
                   </span>
                 </label>
@@ -189,14 +189,14 @@ export function CheckoutForm() {
 
       <aside className="lg:sticky lg:top-6 lg:self-start">
         <div className="rounded-2xl bg-white p-6 shadow-soft ring-1 ring-slate-200/70">
-          <h2 className="text-lg font-extrabold text-brand-navy">Votre commande</h2>
+          <h2 className="text-lg font-extrabold text-brand-dark">Votre commande</h2>
           <ul className="mt-4 space-y-2.5 text-sm">
             {items.map((item) => (
               <li key={item.id} className="flex items-start justify-between gap-3">
                 <span className="min-w-0 text-slate-600">
-                  <span className="font-medium text-brand-navy">{item.qty}×</span> {item.name}
+                  <span className="font-medium text-brand-dark">{item.qty}×</span> {item.name}
                 </span>
-                <span className="shrink-0 font-semibold text-brand-navy">{formatMinorUnits(item.priceMinorUnits * item.qty)}</span>
+                <span className="shrink-0 font-semibold text-brand-dark">{formatMinorUnits(item.priceMinorUnits * item.qty)}</span>
               </li>
             ))}
           </ul>
@@ -206,7 +206,7 @@ export function CheckoutForm() {
               <dt className="text-slate-500">
                 Sous-total ({count} article{count > 1 ? "s" : ""})
               </dt>
-              <dd className="font-semibold text-brand-navy">{formatMinorUnits(totalMinorUnits)}</dd>
+              <dd className="font-semibold text-brand-dark">{formatMinorUnits(totalMinorUnits)}</dd>
             </div>
             <div className="flex items-center justify-between">
               <dt className="text-slate-500">Livraison</dt>
@@ -215,8 +215,8 @@ export function CheckoutForm() {
           </dl>
 
           <div className="mt-4 flex items-center justify-between border-t border-slate-200 pt-4">
-            <span className="text-base font-bold text-brand-navy">Total</span>
-            <span className="text-xl font-extrabold text-brand-navy">{formatMinorUnits(totalMinorUnits)}</span>
+            <span className="text-base font-bold text-brand-dark">Total</span>
+            <span className="text-xl font-extrabold text-brand-dark">{formatMinorUnits(totalMinorUnits)}</span>
           </div>
 
           <button

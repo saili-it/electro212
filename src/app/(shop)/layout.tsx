@@ -3,6 +3,7 @@ import { MetaPixel } from "@/components/shop/meta-pixel";
 import { SiteFooter } from "@/components/shop/site-footer";
 import { SiteHeader } from "@/components/shop/site-header";
 import { WhatsAppButton } from "@/components/shop/whatsapp-button";
+import { ScrollToTop } from "@/components/shop/scroll-to-top";
 
 export default function ShopLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -12,6 +13,7 @@ export default function ShopLayout({ children }: { children: React.ReactNode }) 
       <main className="flex-1">{children}</main>
       <SiteFooter />
       <WhatsAppButton />
+      <ScrollToTop />
       {siteConfig.metaPixelId && <MetaPixel pixelId={siteConfig.metaPixelId} />}
     </div>
   );

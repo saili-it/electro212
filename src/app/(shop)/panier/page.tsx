@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function CartPage() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
-      <h1 className="text-2xl font-extrabold tracking-tight text-brand-navy sm:text-3xl">Mon panier</h1>
+      <h1 className="text-2xl font-extrabold tracking-tight text-brand-dark sm:text-3xl">Mon panier</h1>
       <CartView />
     </div>
   );

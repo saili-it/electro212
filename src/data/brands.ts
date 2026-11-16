@@ -1,12 +1,13 @@
 import "server-only";
 import { z } from "zod";
 import { requireAdmin } from "@/data/auth";
+import { imageAddressSchema } from "@/lib/image-address";
 import { prisma } from "@/lib/prisma";
 
 const brandInputSchema = z.object({
   name: z.string().min(1).max(160),
   slug: z.string().min(1).max(160),
-  logoUrl: z.string().url().nullable().optional(),
+  logoUrl: imageAddressSchema.nullable().optional(),
 });
 
 export type BrandInput = z.infer<typeof brandInputSchema>;

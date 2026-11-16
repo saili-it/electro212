@@ -47,11 +47,11 @@ export function AddToCart({ item, inStock, max }: { item: Omit<CartItem, "qty">;
           onClick={() => bump(-1)}
           disabled={qty <= 1}
           aria-label="Diminuer la quantité"
-          className="flex h-11 w-11 items-center justify-center rounded-full text-xl text-brand-navy transition hover:bg-slate-100 disabled:opacity-30"
+          className="flex h-11 w-11 items-center justify-center rounded-full text-xl text-brand-dark transition hover:bg-slate-100 disabled:opacity-30"
         >
           −
         </button>
-        <span className="w-8 text-center text-base font-bold text-brand-navy" aria-live="polite">
+        <span className="w-8 text-center text-base font-bold text-brand-dark" aria-live="polite">
           {qty}
         </span>
         <button
@@ -59,7 +59,7 @@ export function AddToCart({ item, inStock, max }: { item: Omit<CartItem, "qty">;
           onClick={() => bump(1)}
           disabled={qty >= ceiling}
           aria-label="Augmenter la quantité"
-          className="flex h-11 w-11 items-center justify-center rounded-full text-xl text-brand-navy transition hover:bg-slate-100 disabled:opacity-30"
+          className="flex h-11 w-11 items-center justify-center rounded-full text-xl text-brand-dark transition hover:bg-slate-100 disabled:opacity-30"
         >
           +
         </button>

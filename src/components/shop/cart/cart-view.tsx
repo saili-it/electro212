@@ -19,16 +19,16 @@ function QtyStepper({ item }: { item: CartItem }) {
         type="button"
         onClick={() => setQty(item.id, item.qty - 1)}
         aria-label="Diminuer la quantité"
-        className="flex h-8 w-8 items-center justify-center rounded-full text-lg text-brand-navy transition hover:bg-slate-100"
+        className="flex h-8 w-8 items-center justify-center rounded-full text-lg text-brand-dark transition hover:bg-slate-100"
       >
         −
       </button>
-      <span className="w-7 text-center text-sm font-bold text-brand-navy">{item.qty}</span>
+      <span className="w-7 text-center text-sm font-bold text-brand-dark">{item.qty}</span>
       <button
         type="button"
         onClick={() => setQty(item.id, item.qty + 1)}
         aria-label="Augmenter la quantité"
-        className="flex h-8 w-8 items-center justify-center rounded-full text-lg text-brand-navy transition hover:bg-slate-100"
+        className="flex h-8 w-8 items-center justify-center rounded-full text-lg text-brand-dark transition hover:bg-slate-100"
       >
         +
       </button>
@@ -47,7 +47,7 @@ export function CartView() {
     return (
       <div className="mt-6 flex flex-col items-center rounded-2xl bg-white p-12 text-center shadow-soft ring-1 ring-slate-200/70">
         <ImagePlaceholderIcon className="h-16 w-16 text-slate-200" />
-        <p className="mt-4 text-lg font-semibold text-brand-navy">Votre panier est vide</p>
+        <p className="mt-4 text-lg font-semibold text-brand-dark">Votre panier est vide</p>
         <p className="mt-1 text-sm text-slate-500">Parcourez nos univers et ajoutez vos produits préférés.</p>
         <Link
           href="/"
@@ -84,7 +84,7 @@ export function CartView() {
               </Link>
 
               <div className="flex min-w-0 flex-1 flex-col">
-                <Link href={`/produits/${item.slug}`} className="line-clamp-2 text-sm font-semibold text-brand-navy hover:text-brand-red-700">
+                <Link href={`/produits/${item.slug}`} className="line-clamp-2 text-sm font-semibold text-brand-dark hover:text-brand-red-700">
                   {item.name}
                 </Link>
                 <p className="mt-0.5 text-xs text-slate-400">{formatMinorUnits(item.priceMinorUnits)} / unité</p>
@@ -100,7 +100,7 @@ export function CartView() {
                 </div>
               </div>
 
-              <p className="shrink-0 self-center text-right text-sm font-bold text-brand-navy">
+              <p className="shrink-0 self-center text-right text-sm font-bold text-brand-dark">
                 {formatMinorUnits(item.priceMinorUnits * item.qty)}
               </p>
             </li>
@@ -118,13 +118,13 @@ export function CartView() {
 
       <aside className="lg:sticky lg:top-6 lg:self-start">
         <div className="rounded-2xl bg-white p-6 shadow-soft ring-1 ring-slate-200/70">
-          <h2 className="text-lg font-extrabold text-brand-navy">Récapitulatif</h2>
+          <h2 className="text-lg font-extrabold text-brand-dark">Récapitulatif</h2>
           <dl className="mt-4 space-y-2 text-sm">
             <div className="flex items-center justify-between">
               <dt className="text-slate-500">
                 Sous-total ({count} article{count > 1 ? "s" : ""})
               </dt>
-              <dd className="font-semibold text-brand-navy">{formatMinorUnits(totalMinorUnits)}</dd>
+              <dd className="font-semibold text-brand-dark">{formatMinorUnits(totalMinorUnits)}</dd>
             </div>
             <div className="flex items-center justify-between">
               <dt className="text-slate-500">Livraison</dt>
@@ -140,8 +140,8 @@ export function CartView() {
           )}
 
           <div className="mt-4 flex items-center justify-between border-t border-slate-200 pt-4">
-            <span className="text-base font-bold text-brand-navy">Total</span>
-            <span className="text-xl font-extrabold text-brand-navy">{formatMinorUnits(totalMinorUnits)}</span>
+            <span className="text-base font-bold text-brand-dark">Total</span>
+            <span className="text-xl font-extrabold text-brand-dark">{formatMinorUnits(totalMinorUnits)}</span>
           </div>
 
           <Link

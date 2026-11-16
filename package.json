@@ -14,7 +14,9 @@
     "db:create-admin": "tsx prisma/create-admin.ts",
     "db:remove-demo": "tsx prisma/remove-demo.ts",
     "db:import-catalog": "tsx prisma/import-catalog.ts",
-    "db:import-product-images": "tsx prisma/import-product-images.ts"
+    "db:import-product-images": "tsx prisma/import-product-images.ts",
+    "db:load-banners": "tsx prisma/load-banner-images.ts",
+    "db:load-brand-logos": "tsx prisma/load-brand-logos.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1151.0",
@@ -22,6 +24,7 @@
     "@prisma/client": "^7.10.0",
     "argon2": "^0.45.1",
     "exceljs": "^4.4.0",
+    "lucide-react": "^1.72.0",
     "next": "16.4.0",
     "next-auth": "^5.0.0-beta.32",
     "pg": "^8.23.1",

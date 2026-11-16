@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getBrandPageData } from "@/data/catalog";
 import { siteConfig } from "@/config/site";
 import { buildQuery, paginate, parseFilters, sortProducts } from "@/lib/catalog-filters";
+import { BrandLogo } from "@/components/shop/brand-logo";
 import { ProductCard } from "@/components/shop/product-card";
 import { SortSelect } from "@/components/shop/sort-select";
 import { Reveal } from "@/components/shop/reveal";
@@ -95,12 +95,12 @@ export default async function BrandPage({ params, searchParams }: Props) {
 
       <header className="mb-6 flex items-center gap-4">
         {data.logoUrl && (
-          <span className="flex h-16 w-28 items-center justify-center rounded-xl bg-white p-2 ring-1 ring-slate-200/70">
-            <Image src={data.logoUrl} alt={data.name} width={112} height={56} className="max-h-full w-auto object-contain" />
+          <span className="flex h-16 w-32 shrink-0 items-center justify-center rounded-xl bg-white p-3 text-center text-xs font-bold uppercase text-slate-400 ring-1 ring-slate-200/70">
+            <BrandLogo src={data.logoUrl} name={data.name} className="max-h-full max-w-full" />
           </span>
         )}
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-brand-navy sm:text-3xl">{data.name}</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight text-brand-dark sm:text-3xl">{data.name}</h1>
           <p className="mt-1 text-sm text-slate-500">
             {total} produit{total > 1 ? "s" : ""} {data.name}
           </p>
@@ -109,7 +109,7 @@ export default async function BrandPage({ params, searchParams }: Props) {
 
       {items.length === 0 ? (
         <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-soft">
-          <p className="font-semibold text-brand-navy">Aucun produit disponible</p>
+          <p className="font-semibold text-brand-dark">Aucun produit disponible</p>
           <p className="mt-1 text-sm text-slate-500">Les produits de cette marque ne sont pas disponibles pour le moment.</p>
           <Link href="/" className="mt-4 inline-block text-sm font-medium text-brand-red-700 hover:underline">
             Parcourir la boutique

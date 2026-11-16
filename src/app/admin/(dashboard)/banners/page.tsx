@@ -5,6 +5,7 @@ import { Card, EmptyState, LinkButton, PageHeader } from "@/components/admin/ui"
 import { ToggleActiveButton } from "../_components/toggle-active-button";
 import { setBannerActiveAction } from "./actions";
 import { BannerStatusBadge } from "./status-badge";
+import { IMAGE_SPECS } from "@/lib/image-specs";
 import { PLACEMENTS, parsePlacement, type PlacementKey } from "./placements";
 
 export const instant = false;
@@ -35,13 +36,14 @@ export default async function AdminBannersPage({ searchParams }: { searchParams:
   const banners = await listBanners(config.value);
   const live = banners.filter((b) => b.status === "active").length;
   const cardAspect =
-    placementKey === "promo" ? "aspect-[10/3]" : placementKey === "middle" ? "aspect-[4/1]" : "aspect-[16/9]";
+    placementKey === "promo" ? "aspect-[4/3]" : placementKey === "middle" ? "aspect-[4/1]" : "aspect-[2/1]";
+  const { recommended, ratio } = IMAGE_SPECS[placementKey];
   const description =
     placementKey === "hero"
       ? "Le grand carrousel d'images en haut de la page d'accueil."
       : placementKey === "middle"
         ? "Bannière publicitaire large affichée au milieu de la page d'accueil."
-        : "Les cartes promo affichées sous le carrousel, deux par ligne.";
+        : "Les bannières affichées à droite du carrousel d'accueil (les 2 premières ; en dessous sur mobile).";
 
   return (
     <div>
@@ -57,7 +59,7 @@ export default async function AdminBannersPage({ searchParams }: { searchParams:
         <Card>
           <EmptyState
             title={`Aucune ${config.singular}`}
-            description={`Ajoutez une image (${config.sizeHint.replace("Format conseillé : ", "").replace(/\. JPEG.*/, "")}), un lien et éventuellement des dates.`}
+            description={`Ajoutez une image (${recommended.width} × ${recommended.height} px, format ${ratio}), un lien et éventuellement des dates.`}
             action={<LinkButton href={`/admin/banners/new?placement=${placementKey}`}>Créer</LinkButton>}
           />
         </Card>

@@ -3,6 +3,8 @@
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Alert, buttonVariants, inputClass } from "@/components/admin/ui";
+import { ImageSpecHint } from "@/components/admin/image-spec-hint";
+import { ACCEPTED_IMAGE_TYPES, IMAGE_SPECS } from "@/lib/image-specs";
 import {
   deleteProductImageAction,
   reorderProductImagesAction,
@@ -80,7 +82,7 @@ export function ProductImages({ productId, images }: { productId: string; images
                 {/* eslint-disable-next-line @next/next/no-img-element -- stored WebP, host not known for next/image */}
                 <img src={image.url} alt={image.alt ?? ""} className="h-full w-full object-contain" />
                 {index === 0 && (
-                  <span className="absolute left-1.5 top-1.5 rounded-full bg-brand-navy px-2 py-0.5 text-[10px] font-semibold text-white">
+                  <span className="absolute left-1.5 top-1.5 rounded-full bg-brand-dark px-2 py-0.5 text-[10px] font-semibold text-white">
                     Principale
                   </span>
                 )}
@@ -128,19 +130,23 @@ export function ProductImages({ productId, images }: { productId: string; images
         </ul>
       )}
 
-      <div className="flex flex-wrap items-center gap-3 border-t border-slate-100 pt-4">
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          multiple
-          className={`${inputClass} sm:max-w-sm`}
-          disabled={pending}
-        />
-        <button type="button" onClick={upload} disabled={pending} className={buttonVariants.secondary}>
-          {pending ? "Traitement…" : "Ajouter les images"}
-        </button>
-        <span className="text-xs text-slate-500">JPEG, PNG ou WebP · converties en WebP · max 12 par produit.</span>
+      <div className="space-y-3 border-t border-slate-100 pt-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <input
+            ref={fileRef}
+            type="file"
+            accept={ACCEPTED_IMAGE_TYPES}
+            multiple
+            aria-label="Images du produit"
+            className={`${inputClass} sm:max-w-sm`}
+            disabled={pending}
+          />
+          <button type="button" onClick={upload} disabled={pending} className={buttonVariants.secondary}>
+            {pending ? "Traitement…" : "Ajouter les images"}
+          </button>
+          <span className="text-xs text-slate-500">Plusieurs images à la fois · 12 maximum par produit.</span>
+        </div>
+        <ImageSpecHint spec={IMAGE_SPECS.product} />
       </div>
     </div>
   );

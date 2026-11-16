@@ -21,7 +21,7 @@ export default function CheckoutPage() {
         </span>
         <span className="font-medium text-slate-700">Commander</span>
       </nav>
-      <h1 className="text-2xl font-extrabold tracking-tight text-brand-navy sm:text-3xl">Finaliser ma commande</h1>
+      <h1 className="text-2xl font-extrabold tracking-tight text-brand-dark sm:text-3xl">Finaliser ma commande</h1>
       <CheckoutForm />
     </div>
   );

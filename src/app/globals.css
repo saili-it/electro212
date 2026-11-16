@@ -8,21 +8,25 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-jakarta);
+  /* Site font: Poppins, loaded in app/layout.tsx. */
+  --font-sans: var(--font-poppins);
   --font-mono: var(--font-geist-mono);
 }
 
 /*
- * Electro212 charte graphique, sampled from the logo and the reference site.
- * red: logo/menu bar (#ef3d39). Buttons with white text use red-600, since
- * white on #ef3d39 is only 3.9:1 contrast (below the 4.5:1 minimum).
+ * Electro212 charte graphique — taken from the logo only: red "Electro",
+ * green roof + "212" block, white.
+ * red (#ef3d39): header, prices, promos. Buttons with white text use red-600,
+ * since white on #ef3d39 is only 3.9:1 contrast (below the 4.5:1 minimum).
  * green (#1ab25d) is too light for white text (2.8:1): use it for fills and
- * for tinted badges, with green-700 text.
+ * badges with dark text; white-text green surfaces use green-700 (5.6:1).
+ * dark (#0d3520): the logo's green hue taken near-black — headings, dark text,
+ * top strip, footer (white on it ≈ 13.5:1; logo green on it ≈ 4.9:1).
  */
 @theme {
-  --color-brand-navy: #0d0625;
-  --color-brand-navy-800: #1a1238;
-  --color-brand-navy-700: #2a2150;
+  --color-brand-dark: #0d3520;
+  --color-brand-dark-800: #15472c;
+  --color-brand-dark-700: #1f5c3b;
   --color-brand-red: #ef3d39;
   --color-brand-red-600: #d42f2b;
   --color-brand-red-700: #b42521;
@@ -30,13 +34,15 @@
   --color-brand-green: #1ab25d;
   --color-brand-green-700: #12753e;
   --color-brand-green-50: #e9f8ef;
-  /* Warm, soft surface — friendlier than a cool gray. */
-  --color-surface: #f6f5f8;
+  /* Soft neutral page background with a faint green undertone (matches the logo's green). */
+  --color-surface: #f5f7f6;
+  /* A step darker than surface — the floating desktop nav bar. */
+  --color-surface-strong: #e7ece9;
 
-  /* Soft, brand-tinted elevation (navy-shadowed) for a modern, airy feel. */
-  --shadow-soft: 0 1px 2px rgb(13 6 37 / 0.04), 0 10px 26px -12px rgb(13 6 37 / 0.14);
-  --shadow-card: 0 1px 3px rgb(13 6 37 / 0.05), 0 16px 40px -16px rgb(13 6 37 / 0.2);
-  --shadow-pop: 0 2px 6px rgb(13 6 37 / 0.06), 0 24px 60px -20px rgb(13 6 37 / 0.28);
+  /* Soft elevation tinted with the brand's deep green. */
+  --shadow-soft: 0 1px 2px rgb(13 53 32 / 0.04), 0 10px 26px -12px rgb(13 53 32 / 0.14);
+  --shadow-card: 0 1px 3px rgb(13 53 32 / 0.05), 0 16px 40px -16px rgb(13 53 32 / 0.2);
+  --shadow-pop: 0 2px 6px rgb(13 53 32 / 0.06), 0 24px 60px -20px rgb(13 53 32 / 0.28);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -125,5 +131,33 @@ h3 {
   /* Lightweight one-shot entrance for small UI (badges, toasts, dropdowns). */
   .animate-fade-up {
     animation: e212-fade-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+/* Mobile menu drawer: panel slides in from the left over a fading backdrop. */
+@keyframes e212-drawer-in {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes e212-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .animate-drawer-in {
+    animation: e212-drawer-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .animate-backdrop-in {
+    animation: e212-backdrop-in 0.2s ease-out both;
   }
 }
