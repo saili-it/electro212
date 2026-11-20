@@ -1,4 +1,4 @@
-import { siteConfig } from "@/config/site";
+import { META_PIXEL_ID } from "@/lib/meta";
 import { MetaPixel } from "@/components/shop/meta-pixel";
 import { SiteFooter } from "@/components/shop/site-footer";
 import { SiteHeader } from "@/components/shop/site-header";
@@ -14,7 +14,8 @@ export default function ShopLayout({ children }: { children: React.ReactNode }) 
       <SiteFooter />
       <WhatsAppButton />
       <ScrollToTop />
-      {siteConfig.metaPixelId && <MetaPixel pixelId={siteConfig.metaPixelId} />}
+      {/* Shop pages only: the admin back-office is never tracked. */}
+      {META_PIXEL_ID && <MetaPixel />}
     </div>
   );
 }

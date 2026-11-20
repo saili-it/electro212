@@ -1,33 +1,51 @@
 "use client";
 
 import Script from "next/script";
-import { usePathname } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useRef } from "react";
+import { META_PIXEL_ID, contact, contactMethodOf, track } from "@/lib/meta";
 
-declare global {
-  interface Window {
-    fbq?: (...args: unknown[]) => void;
-  }
+/**
+ * Re-fires PageView on client-side navigations (pathname or query string), never on first load —
+ * the base code already tracked that one. Comparing against the last tracked URL (rather than a
+ * "first run" flag) also keeps React strict mode's double effect from sending a duplicate.
+ */
+function PageViewOnNavigate() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const url = `${pathname}?${searchParams.toString()}`;
+  const lastUrl = useRef(url);
+
+  useEffect(() => {
+    if (lastUrl.current === url) return;
+    lastUrl.current = url;
+    track("PageView");
+  }, [url]);
+
+  return null;
+}
+
+/** One delegated listener: any click on a tel:, wa.me or api.whatsapp.com link sends Contact. */
+function ContactClicks() {
+  useEffect(() => {
+    const onClick = (event: MouseEvent) => {
+      const link = event.target instanceof Element ? event.target.closest("a[href]") : null;
+      const method = link ? contactMethodOf(link.getAttribute("href") ?? "") : null;
+      if (method) contact(method);
+    };
+    document.addEventListener("click", onClick, { capture: true });
+    return () => document.removeEventListener("click", onClick, { capture: true });
+  }, []);
+  return null;
 }
 
 /**
- * Meta (Facebook) Pixel. Loaded with next/script `afterInteractive` so it never
- * blocks the initial render, and re-fires PageView on client-side navigations
- * (the inline snippet only fires it once, on first load).
+ * Meta (Facebook) Pixel for the storefront — mounted once in the (shop) layout, so the admin is never
+ * tracked. Base code via next/script `afterInteractive` (init + first PageView), <noscript> fallback,
+ * PageView on client navigations, and Contact on WhatsApp/phone clicks. E-commerce events are sent
+ * from the pages through lib/meta.ts.
  */
-export function MetaPixel({ pixelId }: { pixelId: string }) {
-  const pathname = usePathname();
-  const firstRun = useRef(true);
-
-  useEffect(() => {
-    // The inline snippet already tracked the first PageView.
-    if (firstRun.current) {
-      firstRun.current = false;
-      return;
-    }
-    window.fbq?.("track", "PageView");
-  }, [pathname]);
-
+export function MetaPixel() {
   return (
     <>
       <Script id="meta-pixel" strategy="afterInteractive">
@@ -39,7 +57,7 @@ n.queue=[];t=b.createElement(e);t.async=!0;
 t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '${pixelId}');
+fbq('init', '${META_PIXEL_ID}');
 fbq('track', 'PageView');`}
       </Script>
       <noscript>
@@ -49,9 +67,13 @@ fbq('track', 'PageView');`}
           width="1"
           style={{ display: "none" }}
           alt=""
-          src={`https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1`}
+          src={`https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1`}
         />
       </noscript>
+      <Suspense fallback={null}>
+        <PageViewOnNavigate />
+      </Suspense>
+      <ContactClicks />
     </>
   );
 }

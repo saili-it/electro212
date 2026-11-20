@@ -48,7 +48,7 @@ export function AdviceBanner() {
             <HeadsetIcon className="h-4 w-4" />
             À votre écoute 24/7
           </p>
-          <h2 id="advice-title" className="mt-4 text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl">
+          <h2 id="advice-title" className="mt-4 font-display text-4xl font-extrabold uppercase leading-[0.95] sm:text-5xl">
             Besoin d&apos;aide pour choisir&nbsp;?
           </h2>
           <p className="mt-3 max-w-xl text-[15px] leading-relaxed sm:text-base">

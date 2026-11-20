@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { heroSlides } from "@/config/home";
 import { siteConfig } from "@/config/site";
 import {
+  getCategoryRail,
   getDealProducts,
   getFeaturedProducts,
   getHeroSlides,
@@ -22,7 +22,9 @@ import { ServicesStrip } from "@/components/shop/services-strip";
 import { ProductCard } from "@/components/shop/product-card";
 import { ProductCarousel } from "@/components/shop/product-carousel";
 import { Reveal } from "@/components/shop/reveal";
-import { BrandLogo } from "@/components/shop/brand-logo";
+import { BrandMarquee } from "@/components/shop/brand-marquee";
+import { CategoryRail } from "@/components/shop/category-rail";
+import { SectionHeading } from "@/components/shop/section-heading";
 import { InspirationTiles } from "@/components/shop/inspiration-tiles";
 import type { ProductCardData } from "@/data/storefront";
 
@@ -38,43 +40,23 @@ export const metadata: Metadata = {
   },
 };
 
-function SectionHeading({
+/** A horizontal product rail with its heading, straight on the page background. */
+function ProductRow({
   id,
   title,
-  href,
-  linkLabel,
-  className = "",
+  kicker,
+  products,
 }: {
   id: string;
   title: string;
-  href?: string;
-  linkLabel?: string;
-  className?: string;
+  kicker?: string;
+  products: ProductCardData[];
 }) {
-  return (
-    <div className={`flex items-center justify-between gap-4 ${className}`}>
-      <h2 id={id} className={`text-xl font-extrabold tracking-tight sm:text-2xl text-brand-dark`}>
-        {title}
-      </h2>
-      {href && (
-        <Link
-          href={href}
-          className="shrink-0 rounded-full px-3 py-1.5 text-sm font-semibold text-brand-red-700 transition hover:bg-brand-red-50"
-        >
-          {linkLabel ?? "Voir tout"} →
-        </Link>
-      )}
-    </div>
-  );
-}
-
-/** A horizontal product rail with its heading, straight on the page background. */
-function ProductRow({ id, title, products }: { id: string; title: string; products: ProductCardData[] }) {
   if (products.length === 0) return null;
   return (
     <Reveal>
       <section className="mx-auto max-w-7xl px-4 pt-14" aria-labelledby={id}>
-        <ProductCarousel label={title} heading={<SectionHeading id={id} title={title} />}>
+        <ProductCarousel label={title} heading={<SectionHeading id={id} title={title} kicker={kicker} />}>
           {products.map((product) => (
             <div key={product.id} className="w-[46%] shrink-0 snap-start sm:w-[31%] lg:w-[23.5%] xl:w-[19%]">
               <ProductCard product={product} className="h-full" />
@@ -105,9 +87,10 @@ function OrganizationJsonLd() {
 }
 
 export default async function HomePage() {
-  const [categories, brands, deals, latest, featured, heroBanners, middleBanners, promoBanners] =
+  const [categories, rail, brands, deals, latest, featured, heroBanners, middleBanners, promoBanners] =
     await Promise.all([
       getMenuCategories(),
+      getCategoryRail(),
       getShopBrands(),
       getDealProducts(12),
       getLatestProducts(12),
@@ -156,50 +139,37 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <Reveal>
-        <ServicesStrip />
-      </Reveal>
+      <ServicesStrip />
+      <CategoryRail categories={rail} />
 
       {categories.length > 0 && (
         <Reveal>
         <section className="mx-auto max-w-7xl px-4 pt-14" aria-labelledby="universes-title">
-          <SectionHeading id="universes-title" title="Nos univers" className="mb-5" />
+          <SectionHeading id="universes-title" kicker="Tout l'équipement de la maison" title="Nos univers" className="mb-6" />
           <UniverseGrid categories={categories} />
         </section>
         </Reveal>
       )}
 
-      <ProductRow id="deals-title" title="Les bons plans du moment" products={deals} />
+      <ProductRow id="deals-title" kicker="Prix barrés" title="Les bons plans du moment" products={deals} />
+      <ProductRow id="latest-title" kicker="Fraîchement arrivés" title="Nouveautés" products={latest} />
+
       <Reveal>
         <InspirationTiles categorySlugs={categorySlugs} />
       </Reveal>
-
-      <ProductRow id="latest-title" title="Nouveautés" products={latest} />
 
       <Reveal>
         <MiddleBanners banners={middleBanners} />
       </Reveal>
 
-      <ProductRow id="offers-title" title="Découvrez nos meilleures offres !" products={featured} />
+      <ProductRow id="offers-title" kicker="Coups de cœur Electro212" title="Notre sélection" products={featured} />
 
       {brands.length > 0 && (
         <Reveal>
-        <section className="mx-auto max-w-7xl px-4 pt-14" aria-labelledby="brands-title">
-          <SectionHeading id="brands-title" title="Nos marques" className="mb-5" />
-          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
-            {brands.map((brand) => (
-              <li key={brand.id}>
-                <Link
-                  href={`/marques/${brand.slug}`}
-                  aria-label={`Produits ${brand.name}`}
-                  className="flex h-20 items-center justify-center rounded-2xl bg-white px-4 text-lg font-extrabold uppercase tracking-wide text-slate-400 shadow-soft ring-1 ring-slate-200/70 transition duration-200 hover:-translate-y-1 hover:text-brand-dark hover:shadow-card sm:h-24"
-                >
-                  {brand.logoUrl ? <BrandLogo src={brand.logoUrl} name={brand.name} /> : brand.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
+          <section className="mx-auto max-w-7xl px-4 pt-16" aria-labelledby="brands-title">
+            <SectionHeading id="brands-title" kicker="Les grandes marques" title="Nos marques" className="mb-6" />
+            <BrandMarquee brands={brands} />
+          </section>
         </Reveal>
       )}
 

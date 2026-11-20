@@ -68,7 +68,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
               </div>
               <div className="relative max-w-md">
                 <p className={`text-xs font-semibold uppercase tracking-widest sm:text-sm ${theme.accent}`}>{slide.eyebrow}</p>
-                <p className="mt-3 text-3xl font-bold leading-tight sm:text-4xl">{slide.title}</p>
+                <p className="mt-3 font-display text-4xl font-extrabold uppercase leading-[0.95] sm:text-5xl">{slide.title}</p>
                 <p className="mt-3 text-sm text-white/85 sm:text-base">{slide.text}</p>
                 <Link
                   href={`/categories/${slide.cta.categorySlug}`}

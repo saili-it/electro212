@@ -1,29 +1,31 @@
 import type { ReactNode } from "react";
 import { BulbIcon, HeadsetIcon, ShieldCheckIcon, TruckIcon } from "./icons";
 
-type Service = { icon: ReactNode; color: string; line1: string; line2: string };
+type Service = { icon: ReactNode; line1: string; line2: string };
 
-type ServiceItem = Service & { chip: string };
-
-const SERVICES: ServiceItem[] = [
-  { icon: <TruckIcon className="h-6 w-6" />, color: "text-brand-red-600", chip: "bg-brand-red-50", line1: "Livraison rapide", line2: "partout au Maroc" },
-  { icon: <HeadsetIcon className="h-6 w-6" />, color: "text-brand-green-700", chip: "bg-brand-green-50", line1: "Service client dédié", line2: "7J/7" },
-  { icon: <BulbIcon className="h-6 w-6" />, color: "text-brand-red-600", chip: "bg-brand-red-50", line1: "Nos conseils,", line2: "achat et entretien" },
-  { icon: <ShieldCheckIcon className="h-6 w-6" />, color: "text-brand-green-700", chip: "bg-brand-green-50", line1: "Produits certifiés,", line2: "garantie officielle" },
+const SERVICES: Service[] = [
+  { icon: <TruckIcon className="h-6 w-6" />, line1: "Livraison rapide", line2: "partout au Maroc" },
+  { icon: <HeadsetIcon className="h-6 w-6" />, line1: "Service client", line2: "7 jours sur 7" },
+  { icon: <BulbIcon className="h-6 w-6" />, line1: "Conseils d'experts", line2: "achat et entretien" },
+  { icon: <ShieldCheckIcon className="h-6 w-6" />, line1: "Garantie officielle", line2: "produits certifiés" },
 ];
 
+/** Full-width deep-green band of shop promises, right under the hero. */
 export function ServicesStrip() {
   return (
-    <section className="mx-auto max-w-7xl px-4 pt-8" aria-label="Nos services">
-      <ul className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {SERVICES.map((service) => (
-          <li key={service.line1} className="flex items-center gap-3 rounded-xl border border-slate-200/80 bg-white px-3 py-3 sm:px-4">
-            <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${service.chip} ${service.color}`}>
+    <section className="mt-6 bg-brand-dark text-white sm:mt-8" aria-label="Nos services">
+      <ul className="mx-auto grid max-w-7xl grid-cols-2 lg:grid-cols-4">
+        {SERVICES.map((service, index) => (
+          <li
+            key={service.line1}
+            className={`flex items-center gap-2.5 px-3 py-3.5 sm:gap-3 sm:px-4 sm:py-5 ${index % 2 === 1 ? "border-l border-white/10" : ""} ${index >= 2 ? "border-t border-white/10 lg:border-t-0 lg:border-l" : ""}`}
+          >
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-green text-brand-dark sm:h-11 sm:w-11 [&_svg]:h-5 [&_svg]:w-5 sm:[&_svg]:h-6 sm:[&_svg]:w-6">
               {service.icon}
             </span>
-            <span className="text-[13px] leading-snug sm:text-sm">
-              <span className="block font-semibold text-brand-dark">{service.line1}</span>
-              <span className="block text-slate-500">{service.line2}</span>
+            <span className="leading-tight">
+              <span className="block font-display text-[15px] font-bold uppercase sm:text-lg sm:tracking-wide">{service.line1}</span>
+              <span className="block text-xs text-white/70 sm:text-[13px]">{service.line2}</span>
             </span>
           </li>
         ))}

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getSearchResults } from "@/data/catalog";
+import { TrackSearch } from "@/components/shop/meta-events";
 import { paginate, parseFilters, sortProducts } from "@/lib/catalog-filters";
 import { ProductCard } from "@/components/shop/product-card";
 import { SortSelect } from "@/components/shop/sort-select";
@@ -128,8 +129,9 @@ export default async function SearchPage({ searchParams }: Props) {
   return (
     <div className="mx-auto max-w-7xl px-4 py-6">
       <Breadcrumb items={[{ href: "/", name: "Accueil" }, { name: "Recherche" }]} />
+      <TrackSearch query={q} />
 
-      <h1 className="mb-4 text-2xl font-extrabold tracking-tight text-brand-dark sm:text-3xl">
+      <h1 className="mb-4 font-display text-4xl font-extrabold uppercase leading-none tracking-tight text-brand-dark sm:text-5xl">
         {q ? <>Résultats pour «&nbsp;{q}&nbsp;»</> : "Rechercher"}
       </h1>
 

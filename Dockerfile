@@ -16,6 +16,11 @@ ENV DATABASE_URL=$DATABASE_URL
 COPY package.json package-lock.json ./
 RUN npm ci
 
+# Meta Pixel id, inlined into the client bundle at build time (NEXT_PUBLIC_*). Empty = the id in
+# src/config/site.ts is used. Override: docker compose build --build-arg NEXT_PUBLIC_META_PIXEL_ID=… app
+ARG NEXT_PUBLIC_META_PIXEL_ID=""
+ENV NEXT_PUBLIC_META_PIXEL_ID=$NEXT_PUBLIC_META_PIXEL_ID
+
 # Build.
 COPY . .
 RUN npx prisma generate && npm run build

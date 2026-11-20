@@ -12,7 +12,7 @@ type Facets = {
 function FacetGroup({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="border-t border-slate-100 py-4 first:border-t-0 first:pt-0">
-      <p className="mb-3 text-sm font-bold text-brand-dark">{title}</p>
+      <p className="mb-3 font-display text-lg font-bold uppercase tracking-wide text-brand-dark">{title}</p>
       {children}
     </div>
   );

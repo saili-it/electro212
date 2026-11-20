@@ -41,61 +41,62 @@ export function ProductCard({ product, className = "" }: { product: ProductCardD
   return (
     // The title link is stretched over the whole card (after:inset-0); the add-to-cart button sits above it.
     <article
-      className={`group relative flex flex-col rounded-2xl bg-white p-2.5 shadow-soft ring-1 ring-slate-200/70 transition duration-200 hover:-translate-y-1 hover:shadow-card hover:ring-slate-300 sm:p-3 ${className}`}
+      className={`group relative flex flex-col overflow-hidden rounded-xl bg-white ring-1 ring-slate-200 transition duration-200 hover:shadow-card hover:ring-2 hover:ring-brand-red-600 ${className}`}
     >
-      {/* Photo on a soft tile: `mix-blend-multiply` makes the photo's white background take the tile's colour. */}
-      <div className="relative aspect-square overflow-hidden rounded-xl bg-surface">
+      <div className="relative aspect-square overflow-hidden bg-white">
         {product.imageUrl ? (
           <Image
             src={product.imageUrl}
             alt={product.imageAlt ?? product.name}
             fill
             sizes="(min-width: 1280px) 20vw, (min-width: 1024px) 24vw, (min-width: 768px) 31vw, (min-width: 640px) 46vw, 50vw"
-            className={`object-contain p-3 mix-blend-multiply transition duration-300 group-hover:scale-105 sm:p-4 ${product.inStock ? "" : "opacity-50"}`}
+            className={`object-contain p-4 transition duration-300 group-hover:scale-105 sm:p-5 ${product.inStock ? "" : "opacity-50 grayscale"}`}
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-slate-300">
+          <div className="flex h-full w-full items-center justify-center bg-surface text-slate-300">
             <ImagePlaceholderIcon className="h-14 w-14" />
           </div>
         )}
         {discount !== null && (
-          <span className="absolute left-2 top-2 rounded-full bg-brand-red-600 px-2.5 py-1 text-xs font-extrabold leading-none text-white shadow-sm">
+          <span className="price-tag absolute left-0 top-3 bg-brand-red-600 py-1 pl-2 pr-3 font-display text-lg font-extrabold leading-none text-white">
             −{discount}%
           </span>
         )}
         {freeDelivery && (
-          <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[11px] font-semibold leading-none text-brand-green-700 shadow-sm">
+          <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded bg-brand-green-700 px-1.5 py-1 font-display text-xs font-bold uppercase leading-none tracking-wide text-white">
             <TruckIcon className="h-3.5 w-3.5" />
-            Livraison gratuite
+            Livraison offerte
           </span>
         )}
       </div>
 
-      <div className="flex flex-1 flex-col px-1 pb-1 pt-3 sm:px-1.5">
-        <p className="h-4 text-[11px] font-semibold uppercase tracking-wider text-slate-500">{product.brandName ?? ""}</p>
-        <h3 className="mt-1 line-clamp-2 min-h-[2.75em] text-sm font-medium leading-snug text-slate-800">
-          <Link href={`/produits/${product.slug}`} className="transition after:absolute after:inset-0 after:rounded-2xl group-hover:text-brand-red-600">
+      <div className="flex flex-1 flex-col border-t border-slate-100 px-3 pb-3 pt-2.5">
+        <p className="flex h-4 items-center justify-between gap-2 font-display text-[13px] font-bold uppercase tracking-wider">
+          <span className="truncate text-slate-500">{product.brandName ?? ""}</span>
+          <span className={`flex shrink-0 items-center gap-1 ${product.inStock ? "text-brand-green-700" : "text-slate-400"}`}>
+            <span className={`h-1.5 w-1.5 rounded-full ${product.inStock ? "bg-brand-green" : "bg-slate-400"}`} aria-hidden />
+            {product.inStock ? "En stock" : "Épuisé"}
+          </span>
+        </p>
+        <h3 className="mt-1.5 line-clamp-2 min-h-[2.6em] text-[13px] font-medium leading-snug text-slate-800 sm:text-sm">
+          <Link href={`/produits/${product.slug}`} className="transition after:absolute after:inset-0 group-hover:text-brand-red-600">
             {product.name}
           </Link>
         </h3>
 
-        <div className="mt-auto pt-3">
-          <p className="flex flex-wrap items-baseline gap-x-2">
-            <span className={`text-xl font-extrabold leading-tight tracking-tight ${hasDiscount ? "text-brand-red-600" : "text-brand-dark"}`}>
-              {cardPrice(product.priceMinorUnits)}
-            </span>
+        <div className="mt-auto flex items-end justify-between gap-2 pt-3">
+          <div className="min-w-0">
             {hasDiscount && (
-              <span className="text-xs text-slate-500 line-through">{cardPrice(product.compareAtPriceMinorUnits!)}</span>
+              <p className="mb-0.5 text-xs text-slate-400 line-through">{cardPrice(product.compareAtPriceMinorUnits!)}</p>
             )}
-          </p>
-          <p className={`mt-1.5 flex items-center gap-1.5 text-xs font-medium ${product.inStock ? "text-brand-green-700" : "text-slate-500"}`}>
-            <span className={`h-1.5 w-1.5 rounded-full ${product.inStock ? "bg-brand-green" : "bg-slate-400"}`} aria-hidden />
-            {product.inStock ? "En stock" : "Rupture de stock"}
-          </p>
+            <p className="price-tag inline-block whitespace-nowrap bg-brand-red-600 py-1 pl-2.5 pr-3 font-display text-xl font-extrabold leading-none tracking-tight text-white sm:text-2xl">
+              {cardPrice(product.priceMinorUnits)}
+            </p>
+          </div>
 
           {product.inStock ? (
             <QuickAdd
-              variant="button"
+              tone="dark"
               item={{
                 id: product.id,
                 slug: product.slug,
@@ -103,12 +104,12 @@ export function ProductCard({ product, className = "" }: { product: ProductCardD
                 priceMinorUnits: product.priceMinorUnits,
                 imageUrl: product.imageUrl,
               }}
-              className="relative z-10 mt-3"
+              className="relative z-10 h-10 w-10"
             />
           ) : (
-            <p className="mt-3 flex h-10 items-center justify-center rounded-full bg-slate-100 text-[13px] font-semibold text-slate-500">
+            <span className="relative z-10 rounded bg-slate-100 px-2 py-1.5 font-display text-xs font-bold uppercase text-slate-500">
               Indisponible
-            </p>
+            </span>
           )}
         </div>
       </div>

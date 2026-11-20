@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist_Mono, Poppins } from "next/font/google";
+import { Barlow_Condensed, Geist_Mono, Poppins } from "next/font/google";
 import { siteConfig } from "@/config/site";
 import "./globals.css";
 
@@ -9,6 +9,15 @@ const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+});
+
+// Display face for headings, prices and badges: a bold condensed sans in the spirit of retail signage.
+const barlowCondensed = Barlow_Condensed({
+  variable: "--font-barlow-condensed",
+  subsets: ["latin"],
+  weight: ["600", "700", "800"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -45,7 +54,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="fr"
-      className={`${poppins.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${poppins.variable} ${barlowCondensed.variable} ${geistMono.variable} h-full antialiased`}
       // The inline script below sets data-anim before hydration; ignore that one attribute diff.
       suppressHydrationWarning
     >

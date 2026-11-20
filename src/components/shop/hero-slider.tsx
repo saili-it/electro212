@@ -34,13 +34,14 @@ function SlideOverlay({ slide }: { slide: ShopBanner }) {
       <div className="pointer-events-none absolute inset-0 flex items-center">
         <div className="mx-auto flex w-full max-w-7xl flex-col items-start gap-3 px-6 text-white sm:px-10 lg:px-12">
           {slide.headline && (
-            <p className="max-w-xl text-2xl font-extrabold leading-tight drop-shadow-sm sm:text-4xl lg:text-5xl">
+            // Large screens: text stays in the left half, so product-led slides keep their products clear.
+            <p className="max-w-xl font-display text-[2rem] font-extrabold uppercase leading-[0.92] drop-shadow-sm sm:text-5xl lg:max-w-[50%] lg:text-6xl">
               {slide.headline}
             </p>
           )}
-          {slide.subtitle && <p className="max-w-lg text-sm text-white/90 sm:text-lg">{slide.subtitle}</p>}
+          {slide.subtitle && <p className="hidden max-w-lg text-white/90 sm:block sm:text-lg lg:max-w-[46%]">{slide.subtitle}</p>}
           {slide.ctaLabel && (
-            <span className="mt-2 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-brand-dark shadow-lg transition group-hover:bg-brand-red-600 group-hover:text-white">
+            <span className="mt-1 inline-flex items-center gap-2 rounded-md bg-brand-red-600 px-4 py-2 font-display text-sm font-bold uppercase tracking-wide text-white shadow-lg transition group-hover:bg-white group-hover:text-brand-red-700 sm:mt-2 sm:px-6 sm:py-3 sm:text-base">
               {slide.ctaLabel} <span aria-hidden>→</span>
             </span>
           )}

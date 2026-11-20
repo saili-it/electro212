@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { BagIcon } from "../icons";
 import { useCart, type CartItem } from "./cart-provider";
+import { addToCart, toMad } from "@/lib/meta";
 
 function CheckMark() {
   return (
@@ -20,10 +21,13 @@ function CheckMark() {
 export function QuickAdd({
   item,
   variant = "icon",
+  tone = "red",
   className = "",
 }: {
   item: Omit<CartItem, "qty">;
   variant?: "icon" | "button";
+  /** Icon variant colour: brand red, or deep green (e.g. beside a red price tag). */
+  tone?: "red" | "dark";
   className?: string;
 }) {
   const { add } = useCart();
@@ -38,6 +42,7 @@ export function QuickAdd({
 
   const handleClick = () => {
     add(item, 1);
+    addToCart({ id: item.id, name: item.name, price: toMad(item.priceMinorUnits) }, 1);
     setJustAdded(true);
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => setJustAdded(false), 1800);
@@ -73,7 +78,11 @@ export function QuickAdd({
       onClick={handleClick}
       aria-label={label}
       className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white shadow-sm transition duration-200 hover:scale-110 ${
-        justAdded ? "bg-brand-green-700" : "bg-brand-red-600 hover:bg-brand-red-700"
+        justAdded
+          ? "bg-brand-green-700"
+          : tone === "dark"
+            ? "bg-brand-dark hover:bg-brand-red-600"
+            : "bg-brand-red-600 hover:bg-brand-red-700"
       } ${className}`}
     >
       {justAdded ? <CheckMark /> : <BagIcon className="h-4 w-4" />}

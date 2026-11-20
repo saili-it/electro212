@@ -15,6 +15,8 @@ export type FilterableProduct = {
   priceMinorUnits: number;
   brandSlug: string | null;
   publishedAtMs: number;
+  /** Optional: when given, the default sort lists products with a photo first. */
+  imageUrl?: string | null;
   /** attribute code → canonical value string ("9.5", "true", "No Frost"). */
   attrs: Record<string, string>;
 };
@@ -95,7 +97,8 @@ export function sortProducts<T extends FilterableProduct>(products: T[], sort: S
   const sorted = [...products];
   if (sort === "prix-asc") sorted.sort((a, b) => a.priceMinorUnits - b.priceMinorUnits);
   else if (sort === "prix-desc") sorted.sort((a, b) => b.priceMinorUnits - a.priceMinorUnits);
-  else sorted.sort((a, b) => b.publishedAtMs - a.publishedAtMs);
+  // Default order: products with a photo first (a grid that opens on empty tiles looks unfinished), newest first.
+  else sorted.sort((a, b) => Number(Boolean(b.imageUrl)) - Number(Boolean(a.imageUrl)) || b.publishedAtMs - a.publishedAtMs);
   return sorted;
 }
 

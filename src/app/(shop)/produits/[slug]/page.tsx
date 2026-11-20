@@ -9,6 +9,8 @@ import { ProductCard } from "@/components/shop/product-card";
 import { ProductCarousel } from "@/components/shop/product-carousel";
 import { ProductGallery } from "@/components/shop/product-gallery";
 import { AddToCart } from "@/components/shop/cart/add-to-cart";
+import { TrackViewContent } from "@/components/shop/meta-events";
+import { toMad } from "@/lib/meta";
 import { HeadsetIcon, ShieldCheckIcon, TruckIcon, WhatsAppIcon } from "@/components/shop/icons";
 
 export const instant = false;
@@ -142,6 +144,12 @@ export default async function ProductPage({ params }: Props) {
   return (
     <div className="mx-auto max-w-7xl px-4 py-6">
       <ProductJsonLd product={product} />
+      <TrackViewContent
+        id={product.id}
+        name={product.name}
+        category={product.breadcrumb.at(-1)?.name ?? null}
+        price={toMad(product.priceMinorUnits)}
+      />
 
       <Breadcrumb
         items={[
@@ -163,7 +171,7 @@ export default async function ProductPage({ params }: Props) {
               {product.brand.name}
             </Link>
           )}
-          <h1 className="mt-1 text-2xl font-extrabold leading-tight tracking-tight text-brand-dark sm:text-3xl">
+          <h1 className="mt-1 font-display text-3xl font-extrabold uppercase leading-[0.98] tracking-tight text-brand-dark sm:text-4xl">
             {product.name}
           </h1>
           <p className="mt-2 text-xs text-slate-400">Réf. {product.sku}</p>
@@ -178,12 +186,12 @@ export default async function ProductPage({ params }: Props) {
                 <span className="text-sm text-slate-400 line-through">{formatMinorUnits(product.compareAtPriceMinorUnits!)}</span>
               )}
               {discount !== null && (
-                <span className="rounded-full bg-brand-red-600 px-2.5 py-1 text-xs font-bold text-white">−{discount}%</span>
+                <span className="price-tag bg-brand-red-600 py-1 pl-2 pr-3 font-display text-base font-extrabold leading-none text-white">−{discount}%</span>
               )}
             </div>
             <Price
               minorUnits={product.priceMinorUnits}
-              className={`mt-1 text-2xl ${hasDiscount ? "text-brand-red-600" : "text-brand-dark"}`}
+              className="price-tag mt-1 bg-brand-red-600 py-1.5 pl-3 pr-4 font-display text-3xl font-extrabold text-white"
             />
             {savings > 0 && (
               <p className="mt-1 text-sm font-semibold text-brand-green-700">
@@ -221,7 +229,7 @@ export default async function ProductPage({ params }: Props) {
               href={whatsappUrl(waMessage)}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-3 flex h-12 w-full items-center justify-center gap-2.5 rounded-full border border-brand-green/40 bg-brand-green/5 text-sm font-semibold text-brand-green-700 transition hover:bg-brand-green/10"
+              className="mt-3 flex h-12 w-full items-center justify-center gap-2.5 rounded-md border-2 border-brand-green-700 bg-white font-display text-base font-bold uppercase tracking-wide text-brand-green-700 transition hover:bg-brand-green-700 hover:text-white"
             >
               <WhatsAppIcon className="h-5 w-5" />
               Commander sur WhatsApp

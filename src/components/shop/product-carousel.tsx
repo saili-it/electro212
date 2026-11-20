@@ -64,7 +64,7 @@ export function ProductCarousel({
             aria-label="Produits précédents"
             onClick={() => scroll(-1)}
             disabled={!canPrev}
-            className={`flex h-10 w-10 items-center justify-center rounded-xl transition enabled:hover:-translate-y-0.5 ${arrow}`}
+            className={`flex h-10 w-10 items-center justify-center rounded-md transition enabled:hover:bg-brand-dark enabled:hover:text-white ${arrow}`}
           >
             <Chevron dir="left" />
           </button>
@@ -73,7 +73,7 @@ export function ProductCarousel({
             aria-label="Produits suivants"
             onClick={() => scroll(1)}
             disabled={!canNext}
-            className={`flex h-10 w-10 items-center justify-center rounded-xl transition enabled:hover:-translate-y-0.5 ${arrow}`}
+            className={`flex h-10 w-10 items-center justify-center rounded-md transition enabled:hover:bg-brand-dark enabled:hover:text-white ${arrow}`}
           >
             <Chevron dir="right" />
           </button>

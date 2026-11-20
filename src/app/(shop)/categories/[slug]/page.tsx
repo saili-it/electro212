@@ -171,7 +171,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
       />
 
       <header className="mb-6">
-        <h1 className="text-2xl font-extrabold tracking-tight text-brand-dark sm:text-3xl">{data.name}</h1>
+        <h1 className="font-display text-4xl font-extrabold uppercase leading-none tracking-tight text-brand-dark sm:text-5xl">{data.name}</h1>
         {data.intro && <p className="mt-2 max-w-3xl text-sm text-slate-600">{data.intro}</p>}
       </header>
 
@@ -181,7 +181,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
             <li key={child.slug}>
               <Link
                 href={`/categories/${child.slug}`}
-                className="inline-block rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-soft transition hover:border-brand-red hover:bg-brand-red-50 hover:text-brand-red-700"
+                className="inline-block rounded-md border border-slate-200 bg-white px-4 py-2 font-display text-base font-bold uppercase tracking-wide text-brand-dark transition hover:border-brand-red-600 hover:bg-brand-red-600 hover:text-white"
               >
                 {child.name}
               </Link>

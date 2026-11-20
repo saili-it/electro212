@@ -6,6 +6,7 @@ import Link from "next/link";
 import { siteConfig, whatsappUrl } from "@/config/site";
 import { formatMinorUnits } from "@/lib/money";
 import { placeOrderAction, type CheckoutState } from "@/app/(shop)/commande/actions";
+import { addPaymentInfo, cartToMetaItems, initiateCheckout } from "@/lib/meta";
 import { ImagePlaceholderIcon, ShieldCheckIcon, TruckIcon, WhatsAppIcon } from "../icons";
 import { useCart } from "../cart/cart-provider";
 
@@ -52,14 +53,26 @@ export function CheckoutForm() {
   const [mode, setMode] = useState<Mode>("livraison-cod");
   const idemRef = useRef<string | null>(null);
   const navigatedRef = useRef(false);
+  const checkoutTrackedRef = useRef(false);
+
+  // Meta: InitiateCheckout once per visit of this page, as soon as the (localStorage) cart is loaded.
+  useEffect(() => {
+    if (!hydrated || items.length === 0 || checkoutTrackedRef.current) return;
+    checkoutTrackedRef.current = true;
+    initiateCheckout(cartToMetaItems(items));
+  }, [hydrated, items]);
 
   useEffect(() => {
     if (state?.ok && !navigatedRef.current) {
       navigatedRef.current = true;
+      // Meta: AddPaymentInfo once, only after the order is accepted, with the chosen mode. It's queued
+      // before the cart is cleared; router.push is a client-side navigation, so the page (and the
+      // pixel's queue) survives and the event isn't lost — no delay needed.
+      addPaymentInfo(cartToMetaItems(items), mode);
       clear();
       router.push(`/commande/confirmation/${state.orderId}`);
     }
-  }, [state, clear, router]);
+  }, [state, clear, router, items, mode]);
 
   const failed = state && !state.ok ? state : null;
   const fieldError = (name: string) => failed?.fieldErrors?.[name];

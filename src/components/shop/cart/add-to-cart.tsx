@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { addToCart, toMad } from "@/lib/meta";
 import { BagIcon } from "../icons";
 import { useCart, type CartItem } from "./cart-provider";
 
@@ -22,6 +23,7 @@ export function AddToCart({ item, inStock, max }: { item: Omit<CartItem, "qty">;
 
   const onAdd = () => {
     add(item, qty);
+    addToCart({ id: item.id, name: item.name, price: toMad(item.priceMinorUnits) }, qty);
     setJustAdded(true);
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => setJustAdded(false), 2200);
@@ -32,7 +34,7 @@ export function AddToCart({ item, inStock, max }: { item: Omit<CartItem, "qty">;
       <button
         type="button"
         disabled
-        className="mt-6 flex h-14 w-full cursor-not-allowed items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-400"
+        className="mt-6 flex h-14 w-full cursor-not-allowed items-center justify-center rounded-md bg-slate-100 font-display text-lg font-bold uppercase tracking-wide text-slate-400"
       >
         Rupture de stock
       </button>
@@ -41,7 +43,7 @@ export function AddToCart({ item, inStock, max }: { item: Omit<CartItem, "qty">;
 
   return (
     <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-stretch">
-      <div className="flex h-14 items-center rounded-full border border-slate-200 bg-white px-1.5">
+      <div className="flex h-14 items-center rounded-md border border-slate-200 bg-white px-1.5">
         <button
           type="button"
           onClick={() => bump(-1)}
@@ -68,7 +70,7 @@ export function AddToCart({ item, inStock, max }: { item: Omit<CartItem, "qty">;
       <button
         type="button"
         onClick={onAdd}
-        className="flex h-14 flex-1 items-center justify-center gap-2.5 rounded-full bg-brand-red-600 px-6 text-sm font-semibold text-white shadow-pop transition hover:bg-brand-red-700 active:scale-[0.99]"
+        className="flex h-14 flex-1 items-center justify-center gap-2.5 rounded-md bg-brand-red-600 px-6 font-display text-lg font-bold uppercase tracking-wide text-white shadow-pop transition hover:bg-brand-red-700 active:scale-[0.99]"
       >
         <BagIcon className="h-5 w-5" />
         {justAdded ? "Ajouté au panier ✓" : "Ajouter au panier"}

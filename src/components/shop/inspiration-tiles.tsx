@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { SectionHeading } from "./section-heading";
 
 // Lifestyle photos (Unsplash, free licence) stored in /public/home.
 const TILES = [
@@ -33,9 +34,7 @@ export function InspirationTiles({ categorySlugs }: { categorySlugs: Set<string>
   if (tiles.length === 0) return null;
   return (
     <section className="mx-auto max-w-7xl px-4 pt-14" aria-labelledby="inspiration-title">
-      <h2 id="inspiration-title" className="mb-5 text-xl font-extrabold tracking-tight text-brand-dark sm:text-2xl">
-        Inspirez-vous
-      </h2>
+      <SectionHeading id="inspiration-title" kicker="Idées et ambiances" title="Inspirez-vous" className="mb-6" />
       <ul className="grid gap-4 md:grid-cols-3">
         {tiles.map((tile) => (
           <li key={tile.slug}>
@@ -54,7 +53,7 @@ export function InspirationTiles({ categorySlugs }: { categorySlugs: Set<string>
               <span className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-5 text-white">
                 <span>
                   <span className="block text-xs font-semibold uppercase tracking-wider text-white/80">{tile.eyebrow}</span>
-                  <span className="mt-1 block text-xl font-extrabold leading-tight">{tile.title}</span>
+                  <span className="mt-1 block font-display text-2xl font-extrabold uppercase leading-none sm:text-3xl">{tile.title}</span>
                   <span className="mt-1 block text-sm text-white/85">{tile.text}</span>
                 </span>
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-brand-dark transition group-hover:bg-brand-red-600 group-hover:text-white">

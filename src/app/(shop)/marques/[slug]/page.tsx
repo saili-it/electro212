@@ -100,7 +100,7 @@ export default async function BrandPage({ params, searchParams }: Props) {
           </span>
         )}
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-brand-dark sm:text-3xl">{data.name}</h1>
+          <h1 className="font-display text-4xl font-extrabold uppercase leading-none tracking-tight text-brand-dark sm:text-5xl">{data.name}</h1>
           <p className="mt-1 text-sm text-slate-500">
             {total} produit{total > 1 ? "s" : ""} {data.name}
           </p>

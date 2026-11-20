@@ -122,6 +122,21 @@ export async function SiteHeader() {
     <header className="contents">
       <CloseMenusOnNavigate />
 
+      {/* Announcement strip (scrolls away): the shop's standing promises. Phones show the first one only. */}
+      <div className="bg-brand-dark text-white">
+        <p className="mx-auto flex max-w-7xl items-center justify-center gap-x-6 px-4 py-1.5 font-display text-[13px] font-semibold uppercase tracking-[0.12em] sm:text-sm">
+          <span>
+            Livraison <span className="text-brand-green">gratuite</span> dès {formatDh(siteConfig.freeDeliveryThresholdMad)}
+          </span>
+          <span aria-hidden className="hidden text-white/30 sm:inline">/</span>
+          <span className="hidden sm:inline">Paiement à la livraison</span>
+          <span aria-hidden className="hidden text-white/30 lg:inline">/</span>
+          <a href={`tel:${siteConfig.phone.e164}`} className="hidden transition hover:text-brand-green lg:inline">
+            {siteConfig.phone.label} : {siteConfig.phone.display}
+          </a>
+        </p>
+      </div>
+
       {/* Single red band, sticky. Fixed 72px on desktop so the nav bar can stick right under it. */}
       <div className="sticky top-0 z-40 bg-brand-red-600">
         <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2.5 lg:h-[72px] lg:gap-10 lg:py-0">

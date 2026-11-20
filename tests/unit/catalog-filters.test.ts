@@ -125,3 +125,15 @@ describe("buildQuery", () => {
     expect(buildQuery(parseFilters({}, []))).toBe("");
   });
 });
+
+describe("sortProducts default order", () => {
+  it("lists products with a photo first, newest first within each group (price sorts unaffected)", () => {
+    const list = [
+      { ...products[0], publishedAtMs: 30, imageUrl: null },
+      { ...products[1], publishedAtMs: 20, imageUrl: "/a.webp" },
+      { ...products[2], publishedAtMs: 10, imageUrl: "/b.webp" },
+    ];
+    expect(sortProducts(list, "nouveaute").map((p) => p.publishedAtMs)).toEqual([20, 10, 30]);
+    expect(sortProducts(list, "prix-asc").map((p) => p.priceMinorUnits)).toEqual([300000, 500000, 700000]);
+  });
+});

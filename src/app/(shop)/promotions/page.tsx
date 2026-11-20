@@ -18,7 +18,7 @@ export default async function PromotionsIndexPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
       <header className="mb-6">
-        <h1 className="text-2xl font-extrabold tracking-tight text-brand-dark sm:text-3xl">Promotions</h1>
+        <h1 className="font-display text-4xl font-extrabold uppercase leading-none tracking-tight text-brand-dark sm:text-5xl">Promotions</h1>
         <p className="mt-2 text-sm text-slate-600">Nos offres et événements du moment.</p>
       </header>
 

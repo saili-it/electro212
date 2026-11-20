@@ -6,6 +6,8 @@ import { siteConfig, whatsappUrl } from "@/config/site";
 import { formatMinorUnits } from "@/lib/money";
 import { ORDER_STATUS_LABELS, PAYMENT_METHOD_LABELS } from "@/lib/orders";
 import { CheckCircleIcon, WhatsAppIcon } from "@/components/shop/icons";
+import { TrackPurchase } from "@/components/shop/meta-events";
+import { toMad } from "@/lib/meta";
 
 export const instant = false;
 
@@ -24,6 +26,13 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
+      {/* Meta Purchase: product ids + MAD amounts only (no personal data); value = order total. */}
+      <TrackPurchase
+        orderId={id}
+        reference={order.reference}
+        items={order.items.map((item) => ({ id: item.productId, quantity: item.quantity, price: toMad(item.unitPriceMinorUnits) }))}
+        total={toMad(order.totalMinorUnits)}
+      />
       <div className="rounded-3xl bg-white p-8 text-center shadow-soft ring-1 ring-slate-200/70">
         <CheckCircleIcon className="mx-auto h-16 w-16 text-brand-green" />
         <h1 className="mt-4 text-2xl font-extrabold tracking-tight text-brand-dark sm:text-3xl">Merci, {order.contactName.split(" ")[0]} !</h1>

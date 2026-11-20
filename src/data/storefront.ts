@@ -75,6 +75,45 @@ export async function getMenuCategories(): Promise<MenuCategory[]> {
   }
 }
 
+export type RailCategory = { id: string; slug: string; name: string; imageUrl: string | null };
+
+/**
+ * The home "category rail": every shoppable second-level category (Réfrigérateur, Climatisation…), in menu
+ * order, each illustrated by the photo of one of its own published products — the newest one with a photo.
+ */
+export async function getCategoryRail(): Promise<RailCategory[]> {
+  "use cache";
+  cacheTag(CATALOG_TAG);
+  cacheLife("hours");
+
+  try {
+    const menu = await getMenuCategories();
+    const all = await prisma.category.findMany({ where: { isActive: true }, select: { id: true, parentId: true } });
+    const products = await prisma.product.findMany({
+      where: { status: "PUBLISHED", images: { some: {} } },
+      orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+      select: { primaryCategoryId: true, images: { orderBy: { position: "asc" }, take: 1, select: { url: true } } },
+    });
+    // The category plus all its descendants (breadth-first over the flat list).
+    const subtree = (id: string): Set<string> => {
+      const ids = [id];
+      for (let i = 0; i < ids.length; i += 1) {
+        for (const c of all) if (c.parentId === ids[i] && !ids.includes(c.id)) ids.push(c.id);
+      }
+      return new Set(ids);
+    };
+    return menu.flatMap((root) =>
+      root.children.map((child) => {
+        const ids = subtree(child.id);
+        const photo = products.find((p) => ids.has(p.primaryCategoryId))?.images[0]?.url ?? null;
+        return { id: child.id, slug: child.slug, name: child.name, imageUrl: photo };
+      }),
+    );
+  } catch {
+    return [];
+  }
+}
+
 export type ShopBrand = { id: string; slug: string; name: string; logoUrl: string | null };
 
 export async function getShopBrands(): Promise<ShopBrand[]> {
@@ -187,7 +226,8 @@ export async function getLatestProducts(limit = 12): Promise<ProductCardData[]> 
 
   try {
     const rows = await prisma.product.findMany({
-      where: { status: "PUBLISHED", primaryCategory: { isActive: true } },
+      // Home rails only show products with a photo: an empty tile on the home page looks unfinished.
+      where: { status: "PUBLISHED", primaryCategory: { isActive: true }, images: { some: {} } },
       orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
       take: limit,
       include: productCardInclude,
@@ -227,7 +267,11 @@ function discountRatio(p: ProductCardData) {
   return p.compareAtPriceMinorUnits ? (p.compareAtPriceMinorUnits - p.priceMinorUnits) / p.compareAtPriceMinorUnits : 0;
 }
 
-/** "Meilleures offres": a featured mix — discounted products first (best deal first), then the newest. */
+/**
+ * "Notre sélection": discounted products first (best deal first), then a varied pick — one product per
+ * category, round-robin — so the rail shows the breadth of the shop. Only products with a photo, and never
+ * the ones already in "Nouveautés" (the `limit` newest), so the two home rails don't repeat each other.
+ */
 export async function getFeaturedProducts(limit = 12): Promise<ProductCardData[]> {
   "use cache";
   cacheTag(CATALOG_TAG);
@@ -235,15 +279,30 @@ export async function getFeaturedProducts(limit = 12): Promise<ProductCardData[]
 
   try {
     const rows = await prisma.product.findMany({
-      where: { status: "PUBLISHED", primaryCategory: { isActive: true } },
+      where: { status: "PUBLISHED", primaryCategory: { isActive: true }, images: { some: {} } },
       orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
-      take: limit * 2,
       include: productCardInclude,
     });
-    const cards = rows.map(toProductCard);
-    const deals = cards.filter((p) => discountRatio(p) > 0).sort((a, b) => discountRatio(b) - discountRatio(a));
-    const rest = cards.filter((p) => discountRatio(p) === 0);
-    return [...deals, ...rest].slice(0, limit);
+    const latestIds = new Set(rows.slice(0, limit).map((r) => r.id));
+    const candidates = rows.filter((r) => !latestIds.has(r.id));
+
+    const deals = candidates
+      .map(toProductCard)
+      .filter((p) => discountRatio(p) > 0)
+      .sort((a, b) => discountRatio(b) - discountRatio(a));
+
+    const byCategory = new Map<string, ProductCardRow[]>();
+    for (const row of candidates) {
+      byCategory.set(row.primaryCategoryId, [...(byCategory.get(row.primaryCategoryId) ?? []), row]);
+    }
+    const queues = [...byCategory.values()];
+    const varied: ProductCardData[] = [];
+    for (let round = 0; varied.length < limit * 2 && queues.some((q) => q.length > round); round += 1) {
+      for (const queue of queues) if (queue[round]) varied.push(toProductCard(queue[round]));
+    }
+
+    const seen = new Set<string>();
+    return [...deals, ...varied].filter((p) => !seen.has(p.id) && seen.add(p.id)).slice(0, limit);
   } catch {
     return [];
   }

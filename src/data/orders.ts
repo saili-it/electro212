@@ -275,7 +275,14 @@ export type OrderConfirmation = {
   paymentMethod: PaymentMethod;
   subtotalMinorUnits: number;
   totalMinorUnits: number;
-  items: { name: string; quantity: number; unitPriceMinorUnits: number; lineTotalMinorUnits: number }[];
+  items: {
+    /** Tracking id: the product id (cuid), or the SKU snapshot if the product has since been deleted. */
+    productId: string;
+    name: string;
+    quantity: number;
+    unitPriceMinorUnits: number;
+    lineTotalMinorUnits: number;
+  }[];
 };
 
 /** Public read for the confirmation page, keyed by the unguessable order id (cuid). */
@@ -297,6 +304,7 @@ export async function getOrderConfirmation(id: string): Promise<OrderConfirmatio
     subtotalMinorUnits: order.subtotalMinorUnits,
     totalMinorUnits: order.totalMinorUnits,
     items: order.items.map((item) => ({
+      productId: item.productId ?? item.skuSnapshot,
       name: item.nameSnapshot,
       quantity: item.quantity,
       unitPriceMinorUnits: item.unitPriceMinorUnitsSnapshot,
