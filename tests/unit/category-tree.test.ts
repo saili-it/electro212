@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { orderCategoryTree } from "@/lib/category-tree";
+import { categoriesWithProducts, orderCategoryTree } from "@/lib/category-tree";
 
 const c = (id: string, parentId: string | null, position: number, name = id) => ({ id, parentId, position, name });
 
@@ -30,5 +30,35 @@ describe("orderCategoryTree", () => {
   it("treats a category whose parent is missing as a root instead of dropping it", () => {
     const ordered = orderCategoryTree([c("orphan", "inactive-parent", 0), c("tv", null, 1)]);
     expect(ordered.map((x) => x.id)).toEqual(["orphan", "tv"]);
+  });
+});
+
+describe("categoriesWithProducts", () => {
+  const tree = [
+    { id: "gros", parentId: null },
+    { id: "frigo", parentId: "gros" },
+    { id: "mini-bar", parentId: "frigo" },
+    { id: "lave-linge", parentId: "gros" },
+    { id: "tv", parentId: null },
+    { id: "cables", parentId: "tv" },
+  ];
+
+  it("marks each product's category and all its ancestors", () => {
+    expect(categoriesWithProducts(tree, ["mini-bar"])).toEqual(new Set(["mini-bar", "frigo", "gros"]));
+  });
+
+  it("leaves categories without products out, including empty roots", () => {
+    const visible = categoriesWithProducts(tree, ["lave-linge", "lave-linge"]);
+    expect(visible).toEqual(new Set(["lave-linge", "gros"]));
+    expect(visible.has("tv")).toBe(false);
+  });
+
+  it("ignores unknown category ids and survives a cycle", () => {
+    expect(categoriesWithProducts(tree, ["nope"])).toEqual(new Set());
+    const cyclic = [
+      { id: "a", parentId: "b" },
+      { id: "b", parentId: "a" },
+    ];
+    expect(categoriesWithProducts(cyclic, ["a"])).toEqual(new Set(["a", "b"]));
   });
 });

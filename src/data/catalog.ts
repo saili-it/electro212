@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { DEFAULT_LOCALE } from "@/lib/i18n";
 import { CATALOG_TAG } from "@/lib/cache-tags";
 import type { FilterAttribute } from "@/lib/catalog-filters";
-import type { ProductCardData } from "@/data/storefront";
+import { getShoppableCategoryIds, type ProductCardData } from "@/data/storefront";
 
 export type CategoryListingProduct = ProductCardData & {
   brandSlug: string | null;
@@ -73,6 +73,7 @@ export async function getCategoryPageData(slug: string): Promise<CategoryPageDat
 
   const allCategories = await prisma.category.findMany({ select: { id: true, parentId: true } });
   const subtreeIds = descendantIds(category.id, allCategories);
+  const shoppable = await getShoppableCategoryIds(allCategories);
 
   // Filterable, active attributes across the whole subtree, deduped by code, keeping the first position.
   const categoryAttributes = await prisma.categoryAttribute.findMany({
@@ -144,7 +145,10 @@ export async function getCategoryPageData(slug: string): Promise<CategoryPageDat
     seoTitle: fr?.seoTitle ?? null,
     seoDescription: fr?.seoDescription ?? null,
     breadcrumb,
-    children: category.children.map((c) => ({ slug: c.slug, name: c.translations[0]?.name ?? c.slug })),
+    // Sub-category tiles only for those with something to buy (the rest reappear once a product is published).
+    children: category.children
+      .filter((c) => shoppable.has(c.id))
+      .map((c) => ({ slug: c.slug, name: c.translations[0]?.name ?? c.slug })),
     attributes,
     products,
   };

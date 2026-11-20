@@ -32,3 +32,24 @@ export function orderCategoryTree<T extends FlatCategory>(categories: T[]): Orde
   visit(null, 0, null);
   return result;
 }
+
+/**
+ * Ids of the categories that hold at least one of the given products' categories in their subtree
+ * (the categories themselves plus all their ancestors) — used to hide empty categories from the shop.
+ */
+export function categoriesWithProducts(
+  categories: { id: string; parentId: string | null }[],
+  productCategoryIds: Iterable<string>,
+): Set<string> {
+  const parentOf = new Map(categories.map((c) => [c.id, c.parentId]));
+  const result = new Set<string>();
+  for (const start of productCategoryIds) {
+    let id: string | null | undefined = start;
+    // Stop at the root, at an unknown id, or at an already-marked ancestor (and on cycles).
+    while (id && parentOf.has(id) && !result.has(id)) {
+      result.add(id);
+      id = parentOf.get(id);
+    }
+  }
+  return result;
+}

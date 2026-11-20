@@ -22,6 +22,10 @@ const BRANDS = [
   { slug: "lg", name: "LG", file: "lg.png" },
   { slug: "samsung", name: "SAMSUNG", file: "samsung.png" },
   { slug: "beko", name: "BEKO", file: "beko.png" },
+  { slug: "philips", name: "Philips", file: "philips.png" },
+  // Plain-text wordmarks (no official logo found): replace the file with the real logo when available.
+  { slug: "valutech", name: "Valutech", file: "valutech.png" },
+  { slug: "ai-tech", name: "AI Tech", file: "ai-tech.png" },
 ];
 
 /** True when the current logo may be replaced: none, a web link, or one of our own files. */

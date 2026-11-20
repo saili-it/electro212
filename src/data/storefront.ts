@@ -3,7 +3,7 @@ import { cacheLife, cacheTag } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { DEFAULT_LOCALE } from "@/lib/i18n";
 import { CATALOG_TAG } from "@/lib/cache-tags";
-import { orderCategoryTree } from "@/lib/category-tree";
+import { categoriesWithProducts, orderCategoryTree } from "@/lib/category-tree";
 
 /*
  * Public, cached catalogue reads. No admin check: everything here is what
@@ -17,16 +17,34 @@ export type MenuCategory = { id: string; slug: string; name: string; imageUrl: s
 export type MenuChild = { id: string; slug: string; name: string; children: MenuLeaf[] };
 export type MenuLeaf = { id: string; slug: string; name: string };
 
+/**
+ * Categories a visitor can actually shop: those holding at least one PUBLISHED product in their
+ * subtree. Categories whose products are all drafts (e.g. not priced yet) stay hidden from menus
+ * and tiles, and reappear by themselves once a product is published. Call inside a cached read.
+ */
+export async function getShoppableCategoryIds(categories: { id: string; parentId: string | null }[]): Promise<Set<string>> {
+  const products = await prisma.product.findMany({
+    where: { status: "PUBLISHED" },
+    select: { primaryCategoryId: true, categories: { select: { categoryId: true } } },
+  });
+  return categoriesWithProducts(
+    categories,
+    products.flatMap((p) => [p.primaryCategoryId, ...p.categories.map((c) => c.categoryId)]),
+  );
+}
+
 export async function getMenuCategories(): Promise<MenuCategory[]> {
   "use cache";
   cacheTag(CATALOG_TAG);
   cacheLife("hours");
 
   try {
-    const rows = await prisma.category.findMany({
+    const allRows = await prisma.category.findMany({
       where: { isActive: true },
       include: { translations: { where: { locale: DEFAULT_LOCALE } } },
     });
+    const shoppable = await getShoppableCategoryIds(allRows);
+    const rows = allRows.filter((row) => shoppable.has(row.id));
 
     const ordered = orderCategoryTree(
       rows.map((row) => ({
@@ -264,7 +282,13 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
         where: { status: "PUBLISHED", primaryCategory: { isActive: true } },
         select: { slug: true, updatedAt: true },
       }),
-      prisma.category.findMany({ where: { isActive: true }, select: { slug: true, updatedAt: true } }),
+      prisma.category
+        .findMany({ where: { isActive: true }, select: { id: true, parentId: true, slug: true, updatedAt: true } })
+        // Only categories with something to buy (an empty category page is thin content).
+        .then(async (rows) => {
+          const shoppable = await getShoppableCategoryIds(rows);
+          return rows.filter((row) => shoppable.has(row.id));
+        }),
       prisma.promotion.findMany({ where: { isActive: true }, select: { slug: true, updatedAt: true } }),
       prisma.brand.findMany({ where: { isActive: true }, select: { slug: true, products: { where: { status: "PUBLISHED" }, select: { id: true }, take: 1 } } }),
     ]);

@@ -91,6 +91,30 @@ votre-domaine.ma {
 
 `caddy run` obtient et renouvelle automatiquement le certificat Let's Encrypt. (Alternatives : Nginx + Certbot, Traefik.) Mettez bien `SITE_URL=https://votre-domaine.ma` dans `.env`.
 
+### Serveur de production actuel (proxy Caddy partagé)
+
+Sur le VPS, Caddy tourne **dans Docker** (projet `/opt/proxy`, conteneur `proxy-caddy-1`) et sert aussi les autres applications de la société. Electro212 le rejoint par le réseau Docker `web` (fichier `docker-compose.override.yml`, avec `AUTH_TRUST_HOST: "true"`), donc Caddy joint l'app par son nom de conteneur. Le bloc à avoir dans **`/opt/proxy/sites.caddy`** :
+
+```
+# ----- Electro212 (boutique en ligne, /opt/electro212) — ne pas supprimer -----
+electro212.ma {
+    encode zstd gzip
+    reverse_proxy electro212-app-1:3000
+    log {
+        output stdout
+        format json
+    }
+}
+
+www.electro212.ma {
+    redir https://electro212.ma{uri} permanent
+}
+```
+
+Après modification : `cd /opt/proxy && docker compose exec caddy caddy reload --config /etc/caddy/Caddyfile` (rechargement sans coupure pour les autres sites).
+
+> ⚠️ Ce fichier est partagé : si le bloc Electro212 disparaît (ex. fichier réécrit lors du déploiement d'une autre application), le site devient **inaccessible en HTTPS** (« Ce site est inaccessible ») alors que l'app tourne. Vérifier avec `docker logs proxy-caddy-1 | grep "automatic TLS"` : `electro212.ma` doit figurer dans la liste des domaines.
+
 ## 7. Mises à jour
 
 ```bash
