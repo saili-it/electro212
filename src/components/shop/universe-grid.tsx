@@ -28,7 +28,7 @@ export function UniverseGrid({ categories }: { categories: MenuCategory[] }) {
             <span className="font-display text-xs font-bold uppercase tracking-[0.22em] text-white/70 sm:text-sm">
               Univers {String(index + 1).padStart(2, "0")}
             </span>
-            <span className="relative z-10 mt-1 font-display text-[1.3rem] font-extrabold uppercase leading-[0.92] [overflow-wrap:anywhere] sm:max-w-[85%] sm:text-4xl">
+            <span className="relative z-10 mt-1 font-display text-[1.3rem] font-extrabold uppercase leading-[0.92] [overflow-wrap:anywhere] sm:text-[2rem] sm:[overflow-wrap:normal] lg:text-[1.6rem] xl:text-4xl">
               {category.name}
             </span>
             <span className="relative z-10 mt-2 text-xs font-medium text-white/80 sm:text-[13px]">
@@ -36,7 +36,7 @@ export function UniverseGrid({ categories }: { categories: MenuCategory[] }) {
             </span>
 
             <span className="relative z-10 mt-auto inline-flex items-center gap-1.5 font-display text-sm font-bold uppercase tracking-wide sm:text-base">
-              <span className="hidden sm:inline">Découvrir</span>
+              <span className="hidden sm:inline lg:hidden xl:inline">Découvrir</span>
               <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" strokeWidth={2.5} aria-hidden />
             </span>
 
