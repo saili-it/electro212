@@ -17,7 +17,8 @@
     "db:import-product-images": "tsx prisma/import-product-images.ts",
     "db:load-banners": "tsx prisma/load-banner-images.ts",
     "db:load-brand-logos": "tsx prisma/load-brand-logos.ts",
-    "db:import-stock-catalog": "tsx prisma/import-stock-catalog.ts"
+    "db:import-stock-catalog": "tsx prisma/import-stock-catalog.ts",
+    "db:apply-prices": "tsx prisma/apply-prices.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1151.0",

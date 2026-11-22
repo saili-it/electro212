@@ -348,7 +348,10 @@ function keyFromUrl(url: string): string | null {
   return /^\/uploads\/(.+)$/.exec(url)?.[1] ?? null;
 }
 
-/** HD_IMAGES_DIR files named "<SKU>__<position>.<ext>" → images per SKU, in position order. */
+/**
+ * HD_IMAGES_DIR files named "<SKU>__<position>.<ext>" → images per SKU, in position order. The SKU part is
+ * URL-encoded when it holds characters a file name can't (e.g. "RB34C600ES9/MA" → "RB34C600ES9%2FMA").
+ */
 function readHdImages(): Map<string, Buffer[]> {
   const bySku = new Map<string, { position: number; data: Buffer }[]>();
   let files: string[] = [];
@@ -360,9 +363,15 @@ function readHdImages(): Map<string, Buffer[]> {
   for (const file of files) {
     const m = /^(.+)__(\d+)\.(webp|png|jpe?g)$/i.exec(file);
     if (!m) continue;
-    const list = bySku.get(m[1]) ?? [];
+    let sku = m[1];
+    try {
+      sku = decodeURIComponent(sku);
+    } catch {
+      // not URL-encoded — use the name as is
+    }
+    const list = bySku.get(sku) ?? [];
     list.push({ position: Number(m[2]), data: readFileSync(join(HD_IMAGES_DIR, file)) });
-    bySku.set(m[1], list);
+    bySku.set(sku, list);
   }
   return new Map([...bySku].map(([sku, list]) => [sku, list.sort((a, b) => a.position - b.position).map((i) => i.data)]));
 }

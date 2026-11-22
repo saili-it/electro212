@@ -51,12 +51,29 @@ pages catégories/produits sont correctes dès la première visite.
 # Structure du catalogue (catégories, marques, attributs) + quelques produits démo
 docker compose exec app npm run db:seed
 
-# (Optionnel) Importer le vrai catalogue WooCommerce (prisma/data/product-catalog.json)
-# ⚠️ destructif : remplace le catalogue existant.
-docker compose exec app npm run db:import-catalog
 ```
 
-Les **photos produit** s'ajoutent ensuite depuis l'admin (elles ne sont pas incluses dans l'image).
+**Catalogue réel** (fichier stock `prisma/data/Stock_Electronique_par_Categorie_et_Marque.xlsx`) — à utiliser à la place de l'ancien `db:import-catalog` WooCommerce, obsolète :
+
+```bash
+# 0. Sauvegarde de la base avant tout import
+docker compose exec -T db sh -c 'pg_dump -U "$POSTGRES_USER" -Fc "$POSTGRES_DB"' > ~/backups/electro212-$(date +%F-%H%M).dump
+
+# 1. Simulation (ne modifie rien) : vérifiez les compteurs « supprimés » / « archivés » et l'arborescence
+docker compose exec app npm run db:import-stock-catalog -- --dry-run
+# 2. Import : catégories, marques, produits, stock ; photos depuis prisma/data/product-images-hd/
+#    ⚠️ supprime les produits absents du fichier (ceux liés à une commande sont archivés)
+docker compose exec app npm run db:import-stock-catalog
+# 3. Prix (prisma/data/prix-produits.csv : reference;prix_mad;prix_barre_mad) + publication des produits
+docker compose exec app npm run db:apply-prices -- --dry-run
+docker compose exec app npm run db:apply-prices
+# 4. Bannières d'accueil et logos des marques, puis redémarrage (vide le cache des pages)
+docker compose exec app npm run db:load-banners
+docker compose exec app npm run db:load-brand-logos
+docker compose restart app
+```
+
+Pour mettre à jour les prix plus tard : modifiez `prisma/data/prix-produits.csv` (ou exportez un Excel « Référence ; Prix » en CSV), puis relancez l'étape 3 et `docker compose restart app`. Les photos manquantes s'ajoutent depuis l'admin.
 
 ```bash
 # Logos des marques (« Nos marques ») : attribue les logos de public/brands/ et crée les marques manquantes.
