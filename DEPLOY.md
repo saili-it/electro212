@@ -73,7 +73,7 @@ docker compose exec app npm run db:load-brand-logos
 docker compose restart app
 ```
 
-Pour mettre à jour les prix plus tard : modifiez `prisma/data/prix-produits.csv` (ou exportez un Excel « Référence ; Prix » en CSV), puis relancez l'étape 3 et `docker compose restart app`. Les photos manquantes s'ajoutent depuis l'admin.
+Pour mettre à jour les prix plus tard : sur le poste de dev, régénérez `prisma/data/prix-produits.csv` depuis le tarif (export produits + colonne « PV TTC ») avec `npm run db:tarif-to-prices -- "TARIF ….xlsx"` — **prix site = PV TTC + 15 %, arrondi au dirham** ; un produit sans PV TTC est masqué. Committez, puis sur le serveur : `git pull`, `docker compose up -d --build` (le CSV est intégré à l'image), relancez l'étape 3 et `docker compose restart app`. Les photos manquantes s'ajoutent depuis l'admin.
 
 ```bash
 # Logos des marques (« Nos marques ») : attribue les logos de public/brands/ et crée les marques manquantes.
