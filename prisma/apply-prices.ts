@@ -10,11 +10,12 @@ import { prisma } from "../src/lib/prisma";
  *   reference;prix_mad;prix_barre_mad
  *   KCT-270-SF-G;3499.00;
  *   PEAF-3608;899;1099        ← optional crossed-out ("prix barré") price, must be higher than the price
+ *   SKY-20;masquer;           ← no price yet: the product goes back to draft (hidden from the shop)
  * Prices are in MAD; a decimal comma ("3 499,90") is accepted. Products are matched by SKU (= the
  * "Référence" of the stock file). Rows whose product doesn't exist are reported and skipped.
  *
  * Effect per matched product: price set, crossed-out price set or cleared (only when the column exists),
- * status PUBLISHED (archived products stay archived). Products absent from the file are not touched.
+ * status PUBLISHED — or DRAFT for "masquer" rows (price left as is). Archived products stay archived. Products absent from the file are not touched.
  * The whole file is validated first: any invalid price aborts before anything is written.
  *
  *   npm run db:apply-prices -- --dry-run          # show what would change
@@ -80,11 +81,12 @@ async function main() {
   const parsed = rows
     .filter((r) => r.sku)
     .map((r) => {
+      if (fold(r.price ?? "") === "masquer") return { ...r, hide: true, priceMinor: 0, compareMinor: undefined };
       const price = toMinor(r.price);
       const compare = hasCompare ? toMinor(r.compare) : undefined;
       if (price === null || Number.isNaN(price)) errors.push(`Ligne ${r.line} (${r.sku}) : prix invalide « ${r.price ?? ""} ».`);
       if (Number.isNaN(compare)) errors.push(`Ligne ${r.line} (${r.sku}) : prix barré invalide « ${r.compare} ».`);
-      return { ...r, priceMinor: price as number, compareMinor: compare };
+      return { ...r, hide: false, priceMinor: price as number, compareMinor: compare };
     });
   if (errors.length > 0) throw new Error(`Rien n'a été modifié :\n- ${errors.join("\n- ")}`);
 
@@ -97,6 +99,7 @@ async function main() {
   const unknown: string[] = [];
   let changed = 0;
   let published = 0;
+  let hidden = 0;
   let unchanged = 0;
   const updates: { id: string; data: Record<string, unknown> }[] = [];
 
@@ -104,6 +107,16 @@ async function main() {
     const product = bySku.get(row.sku) ?? byKey.get(skuKey(row.sku));
     if (!product) {
       unknown.push(row.sku);
+      continue;
+    }
+    if (row.hide) {
+      if (product.status !== "PUBLISHED") {
+        unchanged += 1;
+        continue;
+      }
+      hidden += 1;
+      changed += 1;
+      updates.push({ id: product.id, data: { status: "DRAFT" } });
       continue;
     }
     // A crossed-out price is only kept when it's really higher than the price.
@@ -130,7 +143,9 @@ async function main() {
     });
   }
 
-  console.log(`Fichier : ${parsed.length} prix. Produits modifiés : ${changed} (dont ${published} publiés), inchangés : ${unchanged}.`);
+  console.log(
+    `Fichier : ${parsed.length} lignes. Produits modifiés : ${changed} (dont ${published} publiés, ${hidden} masqués), inchangés : ${unchanged}.`,
+  );
   if (unknown.length > 0) console.log(`Références inconnues, ignorées (${unknown.length}) : ${unknown.join(", ")}`);
   if (dryRun) {
     console.log("--dry-run : aucune modification.");
