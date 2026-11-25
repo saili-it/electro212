@@ -330,38 +330,50 @@ function toProductCard(row: ProductCardRow): ProductCardData {
 /** Indexable URLs for sitemap.xml: published products + active categories, brands, promotions. */
 export type SitemapEntry = { path: string; lastModified?: string };
 
+/**
+ * Sitemap entries for products, categories, promotions and brands.
+ *
+ * The DB can be unreachable (e.g. during `next build` in Docker). A failure must NOT be
+ * cached: if the empty fallback were stored by "use cache", the sitemap would keep
+ * listing only the static pages for hours (or until the next deploy). So the cached
+ * function throws on error, and this wrapper turns the error into an empty list
+ * without caching it.
+ */
 export async function getSitemapEntries(): Promise<SitemapEntry[]> {
+  try {
+    return await getCachedSitemapEntries();
+  } catch (error) {
+    console.error("[sitemap] catalog entries unavailable, serving static pages only", error);
+    return [];
+  }
+}
+
+async function getCachedSitemapEntries(): Promise<SitemapEntry[]> {
   "use cache";
   cacheTag(CATALOG_TAG);
   cacheLife("hours");
 
-  try {
-    const [products, categories, promotions, brands] = await Promise.all([
-      prisma.product.findMany({
-        where: { status: "PUBLISHED", primaryCategory: { isActive: true } },
-        select: { slug: true, updatedAt: true },
+  const [products, categories, promotions, brands] = await Promise.all([
+    prisma.product.findMany({
+      where: { status: "PUBLISHED", primaryCategory: { isActive: true } },
+      select: { slug: true, updatedAt: true },
+    }),
+    prisma.category
+      .findMany({ where: { isActive: true }, select: { id: true, parentId: true, slug: true, updatedAt: true } })
+      // Only categories with something to buy (an empty category page is thin content).
+      .then(async (rows) => {
+        const shoppable = await getShoppableCategoryIds(rows);
+        return rows.filter((row) => shoppable.has(row.id));
       }),
-      prisma.category
-        .findMany({ where: { isActive: true }, select: { id: true, parentId: true, slug: true, updatedAt: true } })
-        // Only categories with something to buy (an empty category page is thin content).
-        .then(async (rows) => {
-          const shoppable = await getShoppableCategoryIds(rows);
-          return rows.filter((row) => shoppable.has(row.id));
-        }),
-      prisma.promotion.findMany({ where: { isActive: true }, select: { slug: true, updatedAt: true } }),
-      prisma.brand.findMany({ where: { isActive: true }, select: { slug: true, products: { where: { status: "PUBLISHED" }, select: { id: true }, take: 1 } } }),
-    ]);
+    prisma.promotion.findMany({ where: { isActive: true }, select: { slug: true, updatedAt: true } }),
+    prisma.brand.findMany({ where: { isActive: true }, select: { slug: true, products: { where: { status: "PUBLISHED" }, select: { id: true }, take: 1 } } }),
+  ]);
 
-    return [
-      ...categories.map((c) => ({ path: `/categories/${c.slug}`, lastModified: c.updatedAt.toISOString() })),
-      ...products.map((p) => ({ path: `/produits/${p.slug}`, lastModified: p.updatedAt.toISOString() })),
-      ...promotions.map((p) => ({ path: `/promotions/${p.slug}`, lastModified: p.updatedAt.toISOString() })),
-      // Only brands that actually have published products (an empty brand page is thin content).
-      ...brands.filter((b) => b.products.length > 0).map((b) => ({ path: `/marques/${b.slug}` })),
-    ];
-  } catch {
-    // The DB may be unreachable during a `next build` (e.g. in Docker). Fall back to
-    // the static pages only; the full list fills in at runtime (cacheLife: hours).
-    return [];
-  }
+  return [
+    ...categories.map((c) => ({ path: `/categories/${c.slug}`, lastModified: c.updatedAt.toISOString() })),
+    ...products.map((p) => ({ path: `/produits/${p.slug}`, lastModified: p.updatedAt.toISOString() })),
+    ...promotions.map((p) => ({ path: `/promotions/${p.slug}`, lastModified: p.updatedAt.toISOString() })),
+    // Only brands that actually have published products (an empty brand page is thin content).
+    ...brands.filter((b) => b.products.length > 0).map((b) => ({ path: `/marques/${b.slug}` })),
+  ];
 }
