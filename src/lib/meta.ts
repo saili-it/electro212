@@ -256,16 +256,23 @@ export function purchase(order: { orderId: string; reference: string; items: Tra
   ga4Ecommerce("purchase", order.items, { transaction_id: order.reference }, order.total);
 }
 
-export type ContactMethod = "whatsapp" | "phone";
+export type ContactMethod = "whatsapp" | "phone" | "email";
 
-export function contact(method: ContactMethod) {
-  track("Contact", { contact_method: method });
+/**
+ * A lead: the visitor reached out by WhatsApp, phone or e-mail. Meta `Contact` + GA4 `generate_lead`
+ * (not an e-commerce event, so no `ecommerce: null` reset). `source` says where the click happened
+ * (e.g. "contact_form", "product_page", "header"); GA4 gets "link" when it's unknown.
+ */
+export function contact(method: ContactMethod, source?: string) {
+  track("Contact", { contact_method: method, ...(source ? { lead_source: source } : {}) });
+  pushDataLayer({ event: "generate_lead", contact_method: method, lead_source: source ?? "link" });
 }
 
-/** Classifies a link as a contact action: `tel:` → phone; wa.me / api.whatsapp.com / whatsapp: → WhatsApp. */
+/** Classifies a link as a contact action: `tel:` → phone; `mailto:` → e-mail; wa.me / api.whatsapp.com / whatsapp: → WhatsApp. */
 export function contactMethodOf(href: string): ContactMethod | null {
   const h = href.trim().toLowerCase();
   if (h.startsWith("tel:")) return "phone";
+  if (h.startsWith("mailto:")) return "email";
   if (h.startsWith("whatsapp:")) return "whatsapp";
   try {
     const host = new URL(h).hostname;
@@ -274,4 +281,15 @@ export function contactMethodOf(href: string): ContactMethod | null {
     // relative or malformed URL — not a contact link
   }
   return null;
+}
+
+/** Lead source for a contact link outside the header/footer, from the page it's on (undefined = unknown). */
+export function contactSourceOfPath(pathname: string): string | undefined {
+  if (pathname === "/") return "home";
+  if (pathname.startsWith("/produits/")) return "product_page";
+  if (pathname.startsWith("/commande/confirmation")) return "order_confirmation";
+  if (pathname.startsWith("/commande")) return "checkout";
+  if (pathname.startsWith("/panier")) return "cart";
+  if (pathname.startsWith("/contact")) return "contact_page";
+  return undefined;
 }

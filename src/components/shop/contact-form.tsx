@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { mailtoUrl, siteConfig, whatsappUrl } from "@/config/site";
+import { contact } from "@/lib/meta";
 import { WhatsAppIcon } from "./icons";
 
 const inputClass =
@@ -56,7 +57,11 @@ export function ContactForm() {
         <button
           type="button"
           disabled={!ready}
-          onClick={() => window.open(whatsappUrl(body), "_blank", "noopener,noreferrer")}
+          onClick={() => {
+            // <button>, not a link: the delegated contact-link listener doesn't see it, so track here (once).
+            contact("whatsapp", "contact_form");
+            window.open(whatsappUrl(body), "_blank", "noopener,noreferrer");
+          }}
           className="flex flex-1 items-center justify-center gap-2.5 rounded-full bg-brand-green px-6 py-3.5 text-sm font-semibold text-white shadow-pop transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <WhatsAppIcon className="h-5 w-5" />
@@ -66,6 +71,7 @@ export function ContactForm() {
           type="button"
           disabled={!ready}
           onClick={() => {
+            contact("email", "contact_form");
             window.location.href = mailtoUrl("Demande via le site Electro212", body);
           }}
           className="flex flex-1 items-center justify-center gap-2.5 rounded-full border border-slate-200 px-6 py-3.5 text-sm font-semibold text-brand-dark transition hover:bg-surface disabled:cursor-not-allowed disabled:opacity-50"

@@ -5,6 +5,7 @@ export function WhatsAppButton() {
   return (
     <a
       href={whatsappUrl()}
+      data-contact-source="floating_button"
       target="_blank"
       rel="noopener noreferrer"
       className="fixed bottom-5 left-5 z-40 inline-flex items-center gap-2 rounded-full bg-[#25d366] py-3 pl-4 pr-5 text-sm font-semibold text-brand-dark shadow-lg shadow-black/20 transition hover:-translate-y-0.5 hover:shadow-xl"

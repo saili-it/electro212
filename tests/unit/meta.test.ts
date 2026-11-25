@@ -3,7 +3,9 @@ import {
   addPaymentInfo,
   addToCart,
   cartToMetaItems,
+  contact,
   contactMethodOf,
+  contactSourceOfPath,
   pageView,
   productPayload,
   purchase,
@@ -39,14 +41,52 @@ describe("productPayload", () => {
 });
 
 describe("contactMethodOf", () => {
-  it("recognises phone and WhatsApp links only", () => {
+  it("recognises phone, e-mail and WhatsApp links only", () => {
     expect(contactMethodOf("tel:+212667333472")).toBe("phone");
     expect(contactMethodOf("https://wa.me/212667333472?text=Bonjour")).toBe("whatsapp");
     expect(contactMethodOf("https://api.whatsapp.com/send?phone=212667333472")).toBe("whatsapp");
     expect(contactMethodOf("whatsapp://send?phone=212667333472")).toBe("whatsapp");
+    expect(contactMethodOf("mailto:online@easydis.co.ma")).toBe("email");
+    expect(contactMethodOf("MAILTO:online@easydis.co.ma?subject=Demande")).toBe("email");
     expect(contactMethodOf("/contact")).toBeNull();
-    expect(contactMethodOf("mailto:online@easydis.co.ma")).toBeNull();
     expect(contactMethodOf("https://example.com/wa.me")).toBeNull();
+  });
+});
+
+describe("contactSourceOfPath", () => {
+  it("maps page types to a lead source, unknown pages to undefined", () => {
+    expect(contactSourceOfPath("/")).toBe("home");
+    expect(contactSourceOfPath("/produits/tv-lg-55")).toBe("product_page");
+    expect(contactSourceOfPath("/commande")).toBe("checkout");
+    expect(contactSourceOfPath("/commande/confirmation/abc")).toBe("order_confirmation");
+    expect(contactSourceOfPath("/panier")).toBe("cart");
+    expect(contactSourceOfPath("/contact")).toBe("contact_page");
+    expect(contactSourceOfPath("/cgv")).toBeUndefined();
+  });
+});
+
+describe("contact (lead)", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("sends Meta Contact and one GA4 generate_lead, without an ecommerce reset", () => {
+    const win: { fbq: ReturnType<typeof vi.fn>; dataLayer?: unknown[] } = { fbq: vi.fn() };
+    vi.stubGlobal("window", win);
+    contact("whatsapp", "contact_form");
+    expect(win.fbq).toHaveBeenCalledTimes(1);
+    expect(win.fbq).toHaveBeenCalledWith("track", "Contact", { contact_method: "whatsapp", lead_source: "contact_form" }, expect.any(Object));
+    expect(win.dataLayer).toEqual([{ event: "generate_lead", contact_method: "whatsapp", lead_source: "contact_form" }]);
+  });
+
+  it("defaults the GA4 lead_source to 'link' and keeps the Meta payload unchanged", () => {
+    const win: { fbq: ReturnType<typeof vi.fn>; dataLayer?: unknown[] } = { fbq: vi.fn() };
+    vi.stubGlobal("window", win);
+    contact("email");
+    expect(win.fbq).toHaveBeenCalledWith("track", "Contact", { contact_method: "email" }, expect.any(Object));
+    expect(win.dataLayer).toEqual([{ event: "generate_lead", contact_method: "email", lead_source: "link" }]);
+  });
+
+  it("is a no-op on the server", () => {
+    expect(() => contact("phone", "header")).not.toThrow();
   });
 });
 
