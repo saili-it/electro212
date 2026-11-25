@@ -28,6 +28,9 @@ const geistMono = Geist_Mono({
 
 const siteTitle = `${siteConfig.name} — ${siteConfig.tagline}`;
 
+// Search Console HTML-tag verification (inlined at build time; Docker: build argument). Empty = no tag.
+const googleSiteVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || siteConfig.googleSiteVerification;
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: { default: siteTitle, template: `%s | ${siteConfig.name}` },
@@ -44,6 +47,7 @@ export const metadata: Metadata = {
     description: siteConfig.description,
   },
   twitter: { card: "summary_large_image", title: siteTitle, description: siteConfig.description },
+  ...(googleSiteVerification ? { verification: { google: googleSiteVerification } } : {}),
 };
 
 export const viewport: Viewport = {

@@ -30,7 +30,7 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
       <TrackPurchase
         orderId={id}
         reference={order.reference}
-        items={order.items.map((item) => ({ id: item.productId, quantity: item.quantity, price: toMad(item.unitPriceMinorUnits) }))}
+        items={order.items.map((item) => ({ id: item.productId, name: item.name, quantity: item.quantity, price: toMad(item.unitPriceMinorUnits) }))}
         total={toMad(order.totalMinorUnits)}
       />
       <div className="rounded-3xl bg-white p-8 text-center shadow-soft ring-1 ring-slate-200/70">

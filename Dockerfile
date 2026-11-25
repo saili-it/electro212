@@ -16,10 +16,19 @@ ENV DATABASE_URL=$DATABASE_URL
 COPY package.json package-lock.json ./
 RUN npm ci
 
-# Meta Pixel id, inlined into the client bundle at build time (NEXT_PUBLIC_*). Empty = the id in
-# src/config/site.ts is used. Override: docker compose build --build-arg NEXT_PUBLIC_META_PIXEL_ID=… app
+# Build-time values (docker-compose.yml passes them from the server's .env as build args):
+# - SITE_URL: prerendered pages/metadata get the real domain from the first request after a deploy
+#   (otherwise they'd carry the http://localhost:3000 fallback until they revalidate). Runtime still
+#   receives SITE_URL from docker compose as usual.
+# - NEXT_PUBLIC_*: inlined into the client bundle. Empty = the value in src/config/site.ts is used.
+ARG SITE_URL=""
 ARG NEXT_PUBLIC_META_PIXEL_ID=""
+ARG NEXT_PUBLIC_GTM_ID=""
+ARG NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=""
+ENV SITE_URL=$SITE_URL
 ENV NEXT_PUBLIC_META_PIXEL_ID=$NEXT_PUBLIC_META_PIXEL_ID
+ENV NEXT_PUBLIC_GTM_ID=$NEXT_PUBLIC_GTM_ID
+ENV NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=$NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
 
 # Build.
 COPY . .

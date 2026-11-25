@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { purchase, search, viewContent, type MetaItem } from "@/lib/meta";
+import { purchase, search, viewContent, type TrackItem } from "@/lib/meta";
 
 /*
  * Tiny client children that fire one Meta event from a server-rendered page. Each keeps a ref of
@@ -37,7 +37,7 @@ const PURCHASE_KEY = (orderId: string) => `electro212.meta.purchase.${orderId}`;
  * Order confirmation: Purchase once per order. The order id is the event id (Meta deduplicates),
  * and a localStorage mark stops this browser from re-sending it on refresh or a revisit.
  */
-export function TrackPurchase({ orderId, reference, items, total }: { orderId: string; reference: string; items: MetaItem[]; total: number }) {
+export function TrackPurchase({ orderId, reference, items, total }: { orderId: string; reference: string; items: TrackItem[]; total: number }) {
   const sent = useRef(false);
   useEffect(() => {
     if (sent.current) return;

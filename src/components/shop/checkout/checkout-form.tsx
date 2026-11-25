@@ -65,12 +65,15 @@ export function CheckoutForm() {
   useEffect(() => {
     if (state?.ok && !navigatedRef.current) {
       navigatedRef.current = true;
-      // Meta: AddPaymentInfo once, only after the order is accepted, with the chosen mode. It's queued
-      // before the cart is cleared; router.push is a client-side navigation, so the page (and the
-      // pixel's queue) survives and the event isn't lost — no delay needed.
-      addPaymentInfo(cartToMetaItems(items), mode);
-      clear();
-      router.push(`/commande/confirmation/${state.orderId}`);
+      // Tracking: AddPaymentInfo (Meta) + add_payment_info (GA4) once, only after the order is accepted,
+      // with the chosen mode. The redirect waits until the browser has sent the Meta hit — at most 1 s,
+      // and not at all if the pixel isn't loaded. addPaymentInfo() never rejects, so the cart is always
+      // cleared and the customer always reaches the confirmation page.
+      const orderId = state.orderId;
+      void addPaymentInfo(cartToMetaItems(items), mode).finally(() => {
+        clear();
+        router.push(`/commande/confirmation/${orderId}`);
+      });
     }
   }, [state, clear, router, items, mode]);
 

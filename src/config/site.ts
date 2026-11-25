@@ -5,7 +5,8 @@ export const siteConfig = {
   tagline: "Électroménager, TV et meubles TV au Maroc",
   description:
     "Electro212 : gros et petit électroménager, téléviseurs, climatiseurs, encastrable et meubles TV des grandes marques.",
-  url: process.env.SITE_URL ?? "http://localhost:3000",
+  // `||`, not `??`: the Docker build passes SITE_URL as a build argument, which is "" when unset.
+  url: process.env.SITE_URL || "http://localhost:3000",
   email: "online@easydis.co.ma",
   phone: {
     display: "(212) 667333472",
@@ -40,6 +41,12 @@ export const siteConfig = {
   // Meta (Facebook) Pixel ID — a public identifier, loaded on the storefront only.
   // Set to "" to disable tracking.
   metaPixelId: "4870708023215633",
+  // Google Tag Manager container (GA4 is configured inside GTM). Loaded on the storefront only;
+  // overridden by NEXT_PUBLIC_GTM_ID. Set to "" to disable.
+  gtmId: "GTM-K39L27JV",
+  // Google Search Console HTML-tag verification code (the "content" value). Overridden by
+  // NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION. Empty = no verification tag.
+  googleSiteVerification: "",
 } as const;
 
 export function whatsappUrl(message: string = siteConfig.whatsapp.message) {

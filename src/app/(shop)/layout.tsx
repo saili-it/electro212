@@ -1,5 +1,7 @@
-import { META_PIXEL_ID } from "@/lib/meta";
+import { GTM_ID, META_PIXEL_ID } from "@/lib/meta";
 import { MetaPixel } from "@/components/shop/meta-pixel";
+import { GoogleTagManager } from "@/components/shop/google-tag-manager";
+import { PageViewTracker } from "@/components/shop/page-view-tracker";
 import { SiteFooter } from "@/components/shop/site-footer";
 import { SiteHeader } from "@/components/shop/site-header";
 import { WhatsAppButton } from "@/components/shop/whatsapp-button";
@@ -14,8 +16,11 @@ export default function ShopLayout({ children }: { children: React.ReactNode }) 
       <SiteFooter />
       <WhatsAppButton />
       <ScrollToTop />
-      {/* Shop pages only: the admin back-office is never tracked. */}
+      {/* Shop pages only: the admin back-office is never tracked. Meta Pixel and GTM load side by side
+          (the pixel is NOT inside GTM — adding it there would count every Meta event twice). */}
       {META_PIXEL_ID && <MetaPixel />}
+      {GTM_ID && <GoogleTagManager id={GTM_ID} />}
+      {(META_PIXEL_ID || GTM_ID) && <PageViewTracker />}
     </div>
   );
 }

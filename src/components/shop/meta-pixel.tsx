@@ -1,29 +1,8 @@
 "use client";
 
 import Script from "next/script";
-import { usePathname, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useRef } from "react";
-import { META_PIXEL_ID, contact, contactMethodOf, track } from "@/lib/meta";
-
-/**
- * Re-fires PageView on client-side navigations (pathname or query string), never on first load —
- * the base code already tracked that one. Comparing against the last tracked URL (rather than a
- * "first run" flag) also keeps React strict mode's double effect from sending a duplicate.
- */
-function PageViewOnNavigate() {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const url = `${pathname}?${searchParams.toString()}`;
-  const lastUrl = useRef(url);
-
-  useEffect(() => {
-    if (lastUrl.current === url) return;
-    lastUrl.current = url;
-    track("PageView");
-  }, [url]);
-
-  return null;
-}
+import { useEffect } from "react";
+import { META_PIXEL_ID, contact, contactMethodOf } from "@/lib/meta";
 
 /** One delegated listener: any click on a tel:, wa.me or api.whatsapp.com link sends Contact. */
 function ContactClicks() {
@@ -42,8 +21,8 @@ function ContactClicks() {
 /**
  * Meta (Facebook) Pixel for the storefront — mounted once in the (shop) layout, so the admin is never
  * tracked. Base code via next/script `afterInteractive` (init + first PageView), <noscript> fallback,
- * PageView on client navigations, and Contact on WhatsApp/phone clicks. E-commerce events are sent
- * from the pages through lib/meta.ts.
+ * and Contact on WhatsApp/phone clicks. Page views on client navigations come from <PageViewTracker>;
+ * e-commerce events are sent from the pages through lib/meta.ts.
  */
 export function MetaPixel() {
   return (
@@ -70,9 +49,6 @@ fbq('track', 'PageView');`}
           src={`https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1`}
         />
       </noscript>
-      <Suspense fallback={null}>
-        <PageViewOnNavigate />
-      </Suspense>
       <ContactClicks />
     </>
   );
